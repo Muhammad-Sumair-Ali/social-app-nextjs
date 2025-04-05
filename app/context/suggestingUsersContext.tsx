@@ -1,0 +1,33 @@
+
+"use client";
+import { createContext, useContext, useEffect, useState } from "react";
+import axios from "axios";
+import { IUser } from "@/models/Users";
+
+const SuggestedUsersContext = createContext<any>(null);
+
+export const SuggestedUsersProvider = ({ children }: { children: React.ReactNode }) => {
+  const [users, setUsers] = useState<IUser[]>([]);
+
+  
+  const fetchSuggestedUsers = async () => {
+    try {
+      const res = await axios.get("/api/auth/users");
+      setUsers(res.data);
+    } catch (err) {
+      console.error("Error fetching suggested users", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchSuggestedUsers();
+  }, []);
+
+  return (
+    <SuggestedUsersContext.Provider value={{ users, fetchSuggestedUsers }}>
+      {children}
+    </SuggestedUsersContext.Provider>
+  );
+};
+
+export const useSuggestedUsers = () => useContext(SuggestedUsersContext);

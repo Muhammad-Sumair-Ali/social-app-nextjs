@@ -41,13 +41,14 @@ export function ProfilePostCard({ post }: PostCardProps) {
           />
         ) : (
           <div className="w-full h-full bg-muted flex items-center justify-center relative">
-            <Image
-              width={200}
-              height={200}
-              priority
+           <CustomVideoPlayer
               src={post.mediaUrl}
-              alt={post.caption}
-              className="w-full h-full object-cover"
+              width="100%"
+              height="100%"
+              className="object-contain"
+              autoPlay={false}
+              loop={true}
+              muted={false}
             />
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-10 h-10 bg-black/50 rounded-full flex items-center justify-center">

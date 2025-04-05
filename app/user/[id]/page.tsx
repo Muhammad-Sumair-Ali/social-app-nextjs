@@ -7,6 +7,7 @@ import { PencilLine, Settings, Share2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfilePostCard } from "@/components/post/ProfilePostsCard";
 import { IUser } from "@/models/Users";
+import { ProfileSkeleton } from "@/components/panel/UserProfileSkeleton";
 
 export default function Profile() {
   const [user, setUser] = useState<IUser | null>(null);
@@ -32,7 +33,6 @@ export default function Profile() {
   }, [user]);
 
   const { id } = useParams();
-  console.log("id=>", id);
 
   useEffect(() => {
     async function fetchUser() {
@@ -44,6 +44,10 @@ export default function Profile() {
   }, [id]);
 
 
+
+  if (!user) {
+    return <ProfileSkeleton/>
+  }
 
   return (
     <div className="max-w-4xl mx-auto bg-gray-50 min-h-screen pb-20">
@@ -153,16 +157,11 @@ export default function Profile() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+            <div className="text-center py-12 px-6 bg-white rounded-lg shadow-sm">
               <p className="text-gray-600 mb-4">
-                You haven't created any posts yet.
+                User haven't created any posts yet.
               </p>
-              <button
-                onClick={() => router.push("/create")}
-                className="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 font-medium"
-              >
-                Create Your First Post
-              </button>
+             
             </div>
           )}
         </TabsContent>

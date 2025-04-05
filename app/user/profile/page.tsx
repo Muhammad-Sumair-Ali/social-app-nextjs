@@ -8,6 +8,7 @@ import { PencilLine, Settings, Share2 } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfilePostCard } from "@/components/post/ProfilePostsCard";
+import { ProfileSkeleton } from "@/components/panel/UserProfileSkeleton";
 
 export default function Profile() {
   const { user, loading } = useAuth();
@@ -15,7 +16,7 @@ export default function Profile() {
   const [userPosts, setUserPosts] = useState([]);
 
   useEffect(() => {
-    if (user) {
+    if (user?._id && !loading) {
       const fetchUserPosts = async () => {
         try {
           const response = await axios.post("/api/posts/userposts", {
@@ -29,19 +30,17 @@ export default function Profile() {
 
       fetchUserPosts();
     }
-  }, [user]);
+  }, []);
 
+ 
+  console.log("user posts", userPosts);
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-      </div>
-    );
+    return <ProfileSkeleton />
   }
 
   if (!user) {
-    router.push("/login");
-    return null;
+    router.push("/login")
+    return null
   }
 
   return (

@@ -26,7 +26,6 @@ export async function POST(request: NextRequest) {
 
     const posts = await Post.find({
       $or: [
-        { "user._id": { $in: currentUser.following } },
         { "user._id": new mongoose.Types.ObjectId(currentUserId) }
       ]
     })

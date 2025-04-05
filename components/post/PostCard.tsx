@@ -1,12 +1,10 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
 import {
   Heart,
   MessageCircle,
   Share2,
-  MoreHorizontal,
   Twitter,
   Facebook,
   Instagram,
@@ -41,6 +39,7 @@ import { usePostsActions } from "@/hooks/usePostsActions";
 import { formatDateIntoAgoTimes, getFirstNameFromEmail } from "@/lib/helpers";
 import type { PostCardProps } from "@/lib/types";
 import Link from "next/link";
+import { useSuggestedUsers } from "@/app/context/suggestingUsersContext";
 
 const shareLinks = [
   { id: "copy", icon: Copy, label: "Copy link" },
@@ -52,7 +51,6 @@ const shareLinks = [
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const {
     handleComment,
-    handleFollow,
     handleLike,
     handleShare,
     handleSave,
@@ -66,9 +64,9 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     showComments,
     setShowComments,
     saved,
+    handleFollow
   } = usePostsActions({ post });
-
-  const [isHovering, setIsHovering] = useState(false);
+  const { fetchSuggestedUsers } = useSuggestedUsers();
 
   return (
     <Card className=" mx-auto overflow-hidden shadow-md rounded-lg bg-gradient-to-t from-gray-50 to-blue-200/20 dark:bg-zinc-900">
@@ -103,7 +101,10 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           <div className="flex items-center gap-2">
             {!isOwnPost && (
               <Button
-                onClick={handleFollow}
+              onClick={async () => {
+                await handleFollow();
+                fetchSuggestedUsers();
+              }}
                 variant={isFollowing ? "outline" : "default"}
                 size="sm"
                 className="rounded-full text-xs px-3 h-8"
@@ -171,8 +172,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         )}
         <div
           className="overflow-hidden rounded-md bg-black"
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
         >
           {post.mediaType === "image" ? (
             <Image
