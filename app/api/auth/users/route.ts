@@ -5,14 +5,13 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-    try {
-        await connectDatabase();
-        
+  try {
+    await connectDatabase();
+
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-
 
     const users = await User.find();
     if (!users) {

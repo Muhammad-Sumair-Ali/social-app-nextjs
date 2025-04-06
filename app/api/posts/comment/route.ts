@@ -1,4 +1,4 @@
-// api/posts/comment.ts
+
 import { authOptions } from '@/lib/authOptions';
 import { connectDatabase } from '@/lib/db';
 import Post from '@/models/Post';

@@ -41,7 +41,7 @@ export function ProfilePostCard({ post }: PostCardProps) {
           />
         ) : (
           <div className="w-full h-full bg-muted flex items-center justify-center relative">
-           <CustomVideoPlayer
+            <CustomVideoPlayer
               src={post.mediaUrl}
               width="100%"
               height="100%"
@@ -71,8 +71,9 @@ export function ProfilePostCard({ post }: PostCardProps) {
               )}
             >
               {post.mediaType === "image" ? (
-                <img
-                  src={post.mediaUrl || "/placeholder.svg"}
+                <Image
+                  priority
+                  src={post.mediaUrl}
                   alt={post.caption}
                   className="w-full h-full object-contain"
                 />
@@ -91,11 +92,9 @@ export function ProfilePostCard({ post }: PostCardProps) {
             <div className="w-full md:w-1/3 p-4 overflow-y-auto max-h-[300px] md:max-h-[500px]">
               <div className="flex items-center mb-4">
                 <div className="h-10 w-10 rounded-full overflow-hidden mr-3">
-                  <img
-                    src={
-                      post.user.image || "/placeholder.svg?height=40&width=40"
-                    }
-                    alt={post.user.fullName || post.user.name || "User"}
+                  <Image
+                    src={post?.user?.image}
+                    alt={post.user.fullName || post.user.email}
                     className="h-full w-full object-cover"
                   />
                 </div>

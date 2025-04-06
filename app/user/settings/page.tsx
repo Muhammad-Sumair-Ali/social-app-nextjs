@@ -14,7 +14,7 @@ export default function EditProfile() {
     website: user || "",
   })
 
-  const handleChange = (e:any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
@@ -22,7 +22,7 @@ export default function EditProfile() {
     }))
   }
 
-  const handleSubmit = async (e:any) => {
+  const handleSubmit = async (e:React.FormEvent) => {
     e.preventDefault()
     router.push("/profile")
   }

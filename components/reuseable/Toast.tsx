@@ -43,7 +43,6 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 }
 
 function Toast({
-  id,
   title,
   description,
   variant = "default",

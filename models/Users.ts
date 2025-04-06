@@ -1,24 +1,8 @@
-import mongoose, { model, models, Schema } from "mongoose";
+import { model, models, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
+import { IUser } from "@/lib/types";
 
-export interface IUser {
-    email: string;
-    fullName?: string;
-    password?: string; 
-    following?: {
-        type: [Schema.Types.ObjectId],
-        ref: 'User',
-        default: Object[]
-      }
-    providers: {
-        provider: string;
-        providerId: string;
-    }[];
-    image?: string;  
-    _id?: mongoose.Types.ObjectId;
-    createdAt?: Date;
-    updatedAt?: Date;
-}
+
 
 const userSchema = new Schema<IUser>(
     {

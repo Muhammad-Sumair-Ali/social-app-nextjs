@@ -1,20 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Loader } from 'lucide-react';
 import axios from "axios";
 import { PostCardData } from '@/lib/types';
-import TikTokPostCard from './PostCard';
-
+import PostCard from './PostCard';
+import PostCardSkeleton from '../panel/PostCardSkeleton';
 
 const ListingPostsCards: React.FC = () => {
   const [posts, setPosts] = useState<PostCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true); 
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get('/api/posts');
-        setPosts(response.data.posts);
+        const response = await axios.get(`/api/posts?page=${page}&limit=2`);
+        const newPosts = response.data.posts;
+
+        if (newPosts.length === 0) {
+          setHasMore(false); 
+          return;
+        }
+
+        setPosts((prev) => [...prev, ...newPosts]);
       } catch (error) {
         console.error('Error fetching posts:', error);
         setError('Failed to load posts. Please try again later.');
@@ -23,16 +31,33 @@ const ListingPostsCards: React.FC = () => {
       }
     };
 
-    fetchPosts();
-  }, []);
+    if (hasMore) {
+      fetchPosts();
+    }
+  }, [page]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Loader className="w-8 h-8 animate-spin text-blue-500" />
-      </div>
-    );
-  }
+  const handleInfiniteScroll = () => {
+    try {
+      if (
+        window.innerHeight + document.documentElement.scrollTop + 100 >=
+        document.documentElement.scrollHeight &&
+        hasMore &&
+        !loading
+      ) {
+        setLoading(true);
+        setPage((prev) => prev + 1);
+      }
+    } catch (error) {
+      console.error('Error in infinite scroll:', error);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleInfiniteScroll);
+    return () => {
+      window.removeEventListener('scroll', handleInfiniteScroll);
+    };
+  }, [hasMore, loading]); 
 
   if (error) {
     return (
@@ -42,7 +67,7 @@ const ListingPostsCards: React.FC = () => {
     );
   }
 
-  if (posts?.length === 0) {
+  if (posts?.length === 0 && !loading) {
     return (
       <div className="text-center py-8 max-w-md mx-auto">
         <h3 className="text-xl font-medium mb-2">No posts yet</h3>
@@ -54,10 +79,12 @@ const ListingPostsCards: React.FC = () => {
   }
 
   return (
-    <div className="space-y-14  ring-amber-400 m-auto -mt-4">
-      {posts && posts.map((post) => (
-        <TikTokPostCard key={post._id} post={post} />
+    <div className="space-y-14 ring-amber-400 m-auto -mt-4">
+      {posts.map((post,idx) => (
+        <PostCard key={idx} post={post} />
       ))}
+
+      {loading && <PostCardSkeleton />}
     </div>
   );
 };

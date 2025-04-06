@@ -61,7 +61,9 @@ export default function Register() {
       const response = await axios.post("/api/auth/register", { email, password ,fullName
       })
 
-      showNotification("Registration successful! Please log in.", "success")
+      if(response.data){
+        showNotification("Registration successful! Please log in.", "success")
+      }
       router.push("/login")
     } catch (error) {
       showNotification(error instanceof Error ? error.message : "Registration failed", "error")
@@ -74,7 +76,7 @@ export default function Register() {
     setIsLoading(true)
     try {
       await signIn(provider, { callbackUrl: "/" })
-    } catch (error) {
+    } catch {
       showNotification("Authentication failed", "error")
       setIsLoading(false)
     }

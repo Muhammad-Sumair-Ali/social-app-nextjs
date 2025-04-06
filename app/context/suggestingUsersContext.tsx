@@ -1,15 +1,20 @@
-
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { IUser } from "@/models/Users";
+import { IUser } from "@/lib/types";
 
 const SuggestedUsersContext = createContext<any>(null);
 
-export const SuggestedUsersProvider = ({ children }: { children: React.ReactNode }) => {
+export const SuggestedUsersProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const [users, setUsers] = useState<IUser[]>([]);
 
-  
+
+ 
+
   const fetchSuggestedUsers = async () => {
     try {
       const res = await axios.get("/api/auth/users");
@@ -20,7 +25,11 @@ export const SuggestedUsersProvider = ({ children }: { children: React.ReactNode
   };
 
   useEffect(() => {
-    fetchSuggestedUsers();
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      fetchSuggestedUsers();
+    }
   }, []);
 
   return (

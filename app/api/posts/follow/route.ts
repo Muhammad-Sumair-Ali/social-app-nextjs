@@ -1,4 +1,4 @@
-// api/user/follow.ts
+
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/authOptions';
 import { connectDatabase } from '@/lib/db';
@@ -23,7 +23,6 @@ export  async function POST(req: NextRequest) {
     const currentUserId = session.user.id;
 
 
-    // Check if users exist
     const userToFollow = await User.findById(userId);
     const currentUser = await User.findById(currentUserId);
 

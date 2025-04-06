@@ -4,7 +4,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { IUser } from '@/models/Users';
+import { IUser } from '@/lib/types';
 
 interface AuthContextType {
   user: IUser | null;
@@ -27,7 +27,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchUser = async () => {
       try {
         const res = await axios.get('/api/auth/currentuser');
+        localStorage.setItem("token",res.data._id)
         setUser(res.data);
+        setLoading(false);
+
       } catch (error) {
         console.error("Error fetching current user:", error);
         setUser(null);

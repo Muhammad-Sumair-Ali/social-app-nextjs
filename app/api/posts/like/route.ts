@@ -1,10 +1,9 @@
-// api/posts/like.ts
+
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/authOptions';
 import { connectDatabase } from '@/lib/db';
 import Post from '@/models/Post';
 import { NextRequest, NextResponse } from 'next/server';
-import User from '@/models/Users';
 
 export  async function POST(req: NextRequest) {
 
@@ -29,7 +28,6 @@ export  async function POST(req: NextRequest) {
         {status:404});
     }
 
-    // Check if the user already liked the post
     const alreadyLiked: boolean = post.likes.some((id: string) => id.toString() === userId);
 
     if (alreadyLiked) {

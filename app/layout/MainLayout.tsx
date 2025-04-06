@@ -1,17 +1,30 @@
-import Sidebar from "@/components/common/Sidebar";
+
+
+"use client";
+import { useEffect } from "react";
+import Lenis from "@studio-freight/lenis";
 import Header from "@/components/common/Header";
+import Sidebar from "@/components/common/Sidebar";
 import UsersSuggestSidebar from "@/components/common/UsersSuggestSidebar";
 
-export default function MainLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function MainLayout({ children }: { children: React.ReactNode }) {
+  
+  useEffect(() => {
+    const lenis = new Lenis();
+
+    const raf = (time:number) => {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    };
+
+    requestAnimationFrame(raf);
+  }, []);
+
   return (
     <>
       <Header />
       <div className="max-w-[1210px] mx-auto flex bg-zinc-50 min-h-screen relative">
-        <aside className="w-[280px]  h-screen sticky top-0 overflow-y-auto hidden lg:block bg-white shadow-md">
+        <aside className="w-[280px]  h-screen sticky top-14 overflow-y-auto hidden lg:block bg-white shadow-md">
           <Sidebar />
         </aside>
 
@@ -19,8 +32,8 @@ export default function MainLayout({
           <div className="mx-auto">{children}</div>
         </main>
 
-        <aside className="w-[280px] h-screen sticky top-0 overflow-y-auto hidden lg:block bg-white shadow-md">
-          <UsersSuggestSidebar/>
+        <aside className="w-[280px] h-screen sticky top-14 overflow-y-auto hidden lg:block bg-white shadow-md">
+          <UsersSuggestSidebar />
         </aside>
       </div>
     </>

@@ -33,7 +33,6 @@ export default function Profile() {
   }, []);
 
  
-  console.log("user posts", userPosts);
   if (loading) {
     return <ProfileSkeleton />
   }
@@ -160,7 +159,7 @@ export default function Profile() {
           ) : (
             <div className="text-center py-12 bg-white rounded-lg shadow-sm">
               <p className="text-gray-600 mb-4">
-                You haven't created any posts yet.
+                You haven&#39;t created any posts yet.
               </p>
               <button
                 onClick={() => router.push("/create")}

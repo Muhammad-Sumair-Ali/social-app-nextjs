@@ -6,8 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PencilLine, Settings, Share2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfilePostCard } from "@/components/post/ProfilePostsCard";
-import { IUser } from "@/models/Users";
 import { ProfileSkeleton } from "@/components/panel/UserProfileSkeleton";
+import { IUser } from "@/lib/types";
 
 export default function Profile() {
   const [user, setUser] = useState<IUser | null>(null);
@@ -159,7 +159,7 @@ export default function Profile() {
           ) : (
             <div className="text-center py-12 px-6 bg-white rounded-lg shadow-sm">
               <p className="text-gray-600 mb-4">
-                User haven't created any posts yet.
+                User haven&apos;t created any posts yet.
               </p>
              
             </div>

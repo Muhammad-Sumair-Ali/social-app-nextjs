@@ -2,16 +2,16 @@ import { authOptions } from "@/lib/authOptions";
 import { connectDatabase } from "@/lib/db";
 import User from "@/models/Users";
 import { getServerSession } from "next-auth";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    let userId = session.user.id;
+    const userId = session.user.id;
 
     await connectDatabase();
     const user = await User.findById(userId).select("-password")

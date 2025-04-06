@@ -1,4 +1,4 @@
-// api/posts/create.ts
+
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 import { connectDatabase } from "@/lib/db";
@@ -10,20 +10,18 @@ import User from "@/models/Users";
 
 export async function POST(req: NextRequest) {
   try {
-    // Get the user from the session
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     await connectDatabase();
-    let userId = session.user.id;
+    const userId = session.user.id;
 
     const user = await User.findById(userId).select("-password")
 
     const { caption, mediaBase64 } = await req.json();
 
-    // Upload media to Cloudinary
     const uploadResult = await uploadToCloudinary(mediaBase64, "posts");
 
     // Create post in database

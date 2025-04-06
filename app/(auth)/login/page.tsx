@@ -29,15 +29,14 @@ export default function Login() {
   };
 
 
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSocialLogin = async (provider:any) => {
+  const handleSocialLogin = async (provider:string) => {
     setIsLoading(true);
     try {
       await signIn(provider, { callbackUrl: "/" });
     } catch (error) {
-      setError("Authentication failed");
+      console.error(error || "Authentication failed");
       setIsLoading(false);
     }
   };
