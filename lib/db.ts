@@ -22,11 +22,15 @@ export async function connectDatabase() {
       bufferCommands: true,
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 30000,
-      socketTimeoutMS: 60000, 
-      connectTimeoutMS: 60000, 
+      socketTimeoutMS: 60000,
+      connectTimeoutMS: 60000,
+      retryWrites: true,
+      retryReads: true,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URL, opts)
+
+    cached.promise = mongoose
+      .connect(MONGODB_URL, opts)
       .then(() => mongoose.connection);
   }
 
