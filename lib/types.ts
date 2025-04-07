@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
 
   export interface PostCardProps {
@@ -109,4 +109,19 @@ export interface IUser {
     _id?: mongoose.Types.ObjectId;
     createdAt?: Date;
     updatedAt?: Date;
+}
+
+
+
+
+
+
+export interface INotification {
+  _id?: Types.ObjectId;
+  recipient: IUser;
+  sender: IUser;
+  type: "follow" | "like" | "comment";
+  post?: PostCardData | null;
+  isRead: boolean;
+  createdAt: Date;
 }

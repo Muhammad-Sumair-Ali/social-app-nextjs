@@ -1,56 +1,63 @@
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/authOptions";
+import { connectDatabase } from "@/lib/db";
+import Post from "@/models/Post";
+import { NextRequest, NextResponse } from "next/server";
+import { createNotification } from "@/lib/createNotification";
+import User from "@/models/Users";
 
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/authOptions';
-import { connectDatabase } from '@/lib/db';
-import Post from '@/models/Post';
-import { NextRequest, NextResponse } from 'next/server';
-
-export  async function POST(req: NextRequest) {
-
+export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
-      return NextResponse.json(
-        {message:"Unauthorized"},
-        {status:401});
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     await connectDatabase();
 
-    const { postId } = await req.json();
+    const { postId, postownerId } = await req.json();
     const userId = session.user.id;
 
+    const postOwnerUser = await User.findById(postownerId).select("-password");
+    const currentUser = await User.findById(userId).select("-password");
 
     const post = await Post.findById(postId);
     if (!post) {
-      return NextResponse.json(
-        {message:"post not found"},
-        {status:404});
+      return NextResponse.json({ message: "post not found" }, { status: 404 });
     }
 
-    const alreadyLiked: boolean = post.likes.some((id: string) => id.toString() === userId);
+    const alreadyLiked: boolean = post.likes.some(
+      (id: string) => id.toString() === userId
+    );
 
     if (alreadyLiked) {
       // Unlike the post
       await Post.findByIdAndUpdate(postId, {
-        $pull: { likes: userId }
+        $pull: { likes: userId },
       });
-      return NextResponse.json(
-        {liked:false},
-        {status:200});
+      return NextResponse.json({ liked: false }, { status: 200 });
     } else {
+      
+      //  Create a notification
+      await createNotification({
+        recipient: postOwnerUser,
+        sender: currentUser,
+        type: "like",
+        isRead: false,
+        createdAt: new Date(),
+      });
+
       // Like the post
       await Post.findByIdAndUpdate(postId, {
-        $push: { likes: userId }
+        $push: { likes: userId },
       });
-      return NextResponse.json(
-        {liked:true},
-        {status:200});
+      return NextResponse.json({ liked: true }, { status: 200 });
     }
   } catch (error) {
-    console.error('Error liking/unliking post:', error);
+    console.error("Error liking/unliking post:", error);
     return NextResponse.json(
-      {message:"Error liking/unliking post",error},
-      {status:500});
+      { message: "Error liking/unliking post", error },
+      { status: 500 }
+    );
   }
 }

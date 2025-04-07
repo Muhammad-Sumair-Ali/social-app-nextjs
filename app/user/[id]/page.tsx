@@ -10,13 +10,28 @@ import { ProfileSkeleton } from "@/components/panel/UserProfileSkeleton";
 import { IUser } from "@/lib/types";
 
 export default function Profile() {
+  const token =  typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const [user, setUser] = useState<IUser | null>(null);
+  const { id } = useParams();
 
   const router = useRouter();
   const [userPosts, setUserPosts] = useState([]);
 
+
+
+
   useEffect(() => {
-    if (user) {
+    async function fetchUser() {
+      const res = await axios.get(`/api/auth/user/${id}`);
+      console.log("response user single=>", res.data);
+      setUser(res.data);
+    }
+    fetchUser();
+  }, [id]);
+
+
+  useEffect(() => {
+    if (token && user) {
       const fetchUserPosts = async () => {
         try {
           const response = await axios.post("/api/posts/userposts", {
@@ -30,18 +45,9 @@ export default function Profile() {
 
       fetchUserPosts();
     }
-  }, [user]);
+  }, [user, token]);
 
-  const { id } = useParams();
 
-  useEffect(() => {
-    async function fetchUser() {
-      const res = await axios.get(`/api/auth/user/${id}`);
-      console.log("response user single=>", res.data);
-      setUser(res.data);
-    }
-    fetchUser();
-  }, [id]);
 
 
 

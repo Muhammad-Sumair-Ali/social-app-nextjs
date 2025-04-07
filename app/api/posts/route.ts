@@ -11,7 +11,6 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") ?? "6") || 6;
     const skip = (page - 1) * limit;
 
-    console.time("posts-query");
 
     const posts = await Post.find()
       .sort({ createdAt: -1 })
@@ -19,8 +18,6 @@ export async function GET(request: NextRequest) {
       .limit(limit)
       .populate("likes", "fullName image")
       .lean(); 
-
-    console.timeEnd("posts-query");
 
     return NextResponse.json({ posts }, { status: 200 });
   } catch (error) {

@@ -3,11 +3,11 @@
 import { useAuth } from "@/app/context/useAuth";
 import { useToast } from "@/components/reuseable/Toast";
 import { getFirstNameFromEmail } from "@/lib/helpers";
-import { PostCardProps } from "@/lib/types";
+import { PostCardData, PostCardProps } from "@/lib/types";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
-export const usePostsActions = ({post}:PostCardProps) => {
+export const usePostsActions = ({ post }: PostCardProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [liked, setLiked] = useState(
@@ -27,12 +27,11 @@ export const usePostsActions = ({post}:PostCardProps) => {
       .some((id: any) => id.toString() === user?._id?.toString()) ?? false
   );
 
- 
-
   const handleLike = async () => {
     try {
       const response = await axios.post("/api/posts/like", {
         postId: post._id,
+        postownerId: post.user._id
       });
       setLiked(response.data.liked);
       setLikesCount((prev) => (response.data.liked ? prev + 1 : prev - 1));
@@ -53,6 +52,7 @@ export const usePostsActions = ({post}:PostCardProps) => {
     try {
       const response = await axios.post("/api/posts/comment", {
         postId: post._id,
+        postownerId: post.user._id,
         text: commentText,
       });
 
@@ -142,20 +142,6 @@ export const usePostsActions = ({post}:PostCardProps) => {
     }
   };
 
-
-  useEffect(() => {
-    if (user && post?.user?._id) {
-      // Check if following exists and is an array
-      if (user.following && Array.isArray(user.following)) {
-        const followingIds = user.following.map(id => 
-          typeof id === 'string' ? id : id.toString()
-        );
-        setIsFollowing(followingIds.includes(post.user._id.toString()));
-      }
-    }
-  }, [user, post]);
-  
-
   return {
     handleComment,
     handleFollow,
@@ -163,14 +149,69 @@ export const usePostsActions = ({post}:PostCardProps) => {
     handleShare,
     handleSave,
     liked,
-    isOwnPost,likesCount,
+    isOwnPost,
+    likesCount,
     isFollowing,
-    comments,setComments,
-    commentText,setCommentText,
-    showComments,setShowComments,
-    saved,setSaved
+    comments,
+    setComments,
+    commentText,
+    setCommentText,
+    showComments,
+    setShowComments,
+    saved,
+    setSaved,
+  };
+};
 
-  }
+export const useFetchPosts = () => {
+  const [posts, setPosts] = useState<PostCardData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
+  const handleFetchPosts = async () => {
+    try {
+      const response = await axios.get(`/api/posts?page=${page}&limit=2`);
+      const newPosts = response.data.posts;
 
+      if (newPosts.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
+      setPosts((prev) => [...prev, ...newPosts]);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      setError("Failed to load posts. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInfiniteScroll = useCallback(() => {
+    try {
+      if (
+        window.innerHeight + document.documentElement.scrollTop + 100 >=
+          document.documentElement.scrollHeight &&
+        hasMore &&
+        !loading
+      ) {
+        setLoading(true);
+        setPage((prev) => prev + 1);
+      }
+    } catch (error) {
+      console.error("Error in infinite scroll:", error);
+    }
+  }, [hasMore, loading]);
+
+  return {
+    page,
+    hasMore,
+    posts,
+    loading,
+    error,
+    handleInfiniteScroll,
+    handleFetchPosts,
+  };
 };

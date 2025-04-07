@@ -6,6 +6,7 @@ import Lenis from "@studio-freight/lenis";
 import Header from "@/components/common/Header";
 import Sidebar from "@/components/common/Sidebar";
 import UsersSuggestSidebar from "@/components/common/UsersSuggestSidebar";
+import { MobileNav } from "@/components/common/MobileNavbar";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   
@@ -35,6 +36,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <aside className="w-[280px] h-screen sticky top-14 overflow-y-auto hidden lg:block bg-white shadow-md">
           <UsersSuggestSidebar />
         </aside>
+      </div>
+      <div className="block  md:hidden">
+        <MobileNav/>
       </div>
     </>
   );

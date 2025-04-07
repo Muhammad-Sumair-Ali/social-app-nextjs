@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-// Connection options
 const options = {
   bufferCommands: true,
   maxPoolSize: 10,
@@ -11,16 +10,13 @@ const options = {
   retryReads: true,
 };
 
-// Track connection status
 let isConnected = false;
 
 export async function connectDatabase() {
-  // If already connected, return the existing connection
   if (isConnected) {
     return mongoose;
   }
 
-  // Get MongoDB URL from environment variables
   const MONGODB_URL = process.env.MONGODB_URL;
   
   if (!MONGODB_URL) {
@@ -28,10 +24,8 @@ export async function connectDatabase() {
   }
 
   try {
-    // Establish new connection
     await mongoose.connect(MONGODB_URL, options);
     
-    // Set up connection event listeners
     mongoose.connection.on("connected", () => {
       isConnected = true;
       console.log("MongoDB connected successfully");
