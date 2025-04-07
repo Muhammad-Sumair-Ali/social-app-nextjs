@@ -175,7 +175,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         >
           {post.mediaType === "image" ? (
             <Image
-              src={post.mediaUrl}
+              src={post.mediaUrl || "https://placehold.co/600x400"}
               alt="Post content"
               width={500}
               height={400}

@@ -34,30 +34,30 @@ const ListingPostsCards: React.FC = () => {
     if (hasMore) {
       fetchPosts();
     }
-  }, [page]);
+  }, [page, hasMore]);
 
-  const handleInfiniteScroll = () => {
-    try {
-      if (
-        window.innerHeight + document.documentElement.scrollTop + 100 >=
-        document.documentElement.scrollHeight &&
-        hasMore &&
-        !loading
-      ) {
-        setLoading(true);
-        setPage((prev) => prev + 1);
+  const handleInfiniteScroll = React.useCallback(() => {
+      try {
+        if (
+          window.innerHeight + document.documentElement.scrollTop + 100 >=
+          document.documentElement.scrollHeight &&
+          hasMore &&
+          !loading
+        ) {
+          setLoading(true);
+          setPage((prev) => prev + 1);
+        }
+      } catch (error) {
+        console.error('Error in infinite scroll:', error);
       }
-    } catch (error) {
-      console.error('Error in infinite scroll:', error);
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener('scroll', handleInfiniteScroll);
-    return () => {
-      window.removeEventListener('scroll', handleInfiniteScroll);
-    };
-  }, [hasMore, loading]); 
+    }, [hasMore, loading]);
+  
+    useEffect(() => {
+      window.addEventListener('scroll', handleInfiniteScroll);
+      return () => {
+        window.removeEventListener('scroll', handleInfiniteScroll);
+      };
+    }, [handleInfiniteScroll]); 
 
   if (error) {
     return (

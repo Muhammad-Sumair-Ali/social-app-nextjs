@@ -36,6 +36,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import axios from "axios";
+import Image from "next/image";
+import CustomVideoPlayer from "@/components/CustomVideoPlayer";
 
 export default function CreatePost() {
   const [caption, setCaption] = useState("");
@@ -332,16 +334,20 @@ export default function CreatePost() {
                       </div>
 
                       {mediaType === "image" ? (
-                        <img
-                          src={mediaPreview || "/placeholder.svg"}
+                        <Image
+                          src={mediaPreview || "https://placehold.co/600x400"}
                           alt="Preview"
                           className="w-full h-64 object-cover"
                         />
                       ) : (
-                        <video
+                        <CustomVideoPlayer
                           src={mediaPreview}
+                          width="100%"
+                          height="100%"
+                          autoPlay={false}
+                          loop={true}
+                          muted={false}
                           className="w-full h-64 object-cover"
-                          controls
                         />
                       )}
                     </div>

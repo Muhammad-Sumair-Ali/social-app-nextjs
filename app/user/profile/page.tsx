@@ -30,7 +30,7 @@ export default function Profile() {
 
       fetchUserPosts();
     }
-  }, []);
+  }, [loading, user?._id]);
 
  
   if (loading) {

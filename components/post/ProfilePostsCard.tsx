@@ -73,7 +73,7 @@ export function ProfilePostCard({ post }: PostCardProps) {
               {post.mediaType === "image" ? (
                 <Image
                   priority
-                  src={post.mediaUrl}
+                  src={post.mediaUrl || "https://placehold.co/600x400"}
                   alt={post.caption}
                   className="w-full h-full object-contain"
                 />
@@ -93,7 +93,7 @@ export function ProfilePostCard({ post }: PostCardProps) {
               <div className="flex items-center mb-4">
                 <div className="h-10 w-10 rounded-full overflow-hidden mr-3">
                   <Image
-                    src={post?.user?.image}
+                    src={post?.user?.image || "https://placehold.co/600x400"} 
                     alt={post.user.fullName || post.user.email}
                     className="h-full w-full object-cover"
                   />
