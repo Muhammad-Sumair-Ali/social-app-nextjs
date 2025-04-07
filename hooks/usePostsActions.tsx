@@ -24,7 +24,7 @@ export const usePostsActions = ({post}:PostCardProps) => {
   const [isFollowing, setIsFollowing] = useState(
     post?.user.following
       ?.map((id) => id)
-      .includes(user?._id?.toString() ?? "") ?? false
+      .some((id: any) => id.toString() === user?._id?.toString()) ?? false
   );
 
  
