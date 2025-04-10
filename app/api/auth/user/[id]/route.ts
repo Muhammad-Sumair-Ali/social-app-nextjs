@@ -1,25 +1,27 @@
 
 import { connectDatabase } from "@/lib/db";
+import { getTotalLikesOfUser } from "@/lib/getUserLikes";
 import User from "@/models/Users";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request:NextRequest) {
     try {
         const url = new URL(request.url);
-        const id = url.pathname.split('/').pop(); 
+        const userId = url.pathname.split('/').pop(); 
        
 
         await connectDatabase();
-        if (!id) {
+        if (!userId) {
             return NextResponse.json(
                 { message: "Invalid request Id missing" },
                 { status: 400 }
             );
         }
-
-        const user = await User.findById(id).select("-password");
+            const totalLikes = await getTotalLikesOfUser(userId);
+            const user = await User.findByIdAndUpdate(userId, { likes: totalLikes }).select("-password")
+     
         if (!user) {
-            console.error("User not found for ID:", id);
+            console.error("User not found for ID:", userId);
             return NextResponse.json(
                 { message: "User not found" },
                 { status: 404 }

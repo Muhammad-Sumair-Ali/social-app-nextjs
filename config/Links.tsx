@@ -6,7 +6,7 @@ import {
     Heart,
     User,
     TrendingUp,
-    MessageCircle,
+    Bell,
   } from "lucide-react";
 
 
@@ -28,14 +28,14 @@ export const USER_NAV_LINKS = [
       icon: <PlusSquare className="w-6 h-6" />,
     },
     {
-      href: "/activity",
-      label: "Activity",
+      href: "/user/notifications",
+      label: "Notifications",
       icon: <Heart className="w-6 h-6" />,
     },
     {
       href: "/messages",
       label: "Messages",
-      icon: <MessageCircle className="w-6 h-6" />,
+      icon: <Bell className="w-6 h-6" />,
     },
     {
       href: "/user/profile",

@@ -4,7 +4,7 @@ import { INotification } from "./types";
 
 
 
-export const createNotification = async ({ recipient, sender, type, post = null }:INotification) => {
+export const createNotification = async ({ recipient, sender, type, post }:INotification) => {
   if (recipient.email === sender.email) return;
 
   await Notification.create({

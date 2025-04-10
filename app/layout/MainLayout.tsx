@@ -29,7 +29,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           <Sidebar />
         </aside>
 
-        <main className="flex-1 p-2 py-4 border-2 border-red-400 min-h-screen bg-white overflow-y-auto">
+        <main className="flex-1 p-2 py-4 min-h-screen bg-white overflow-y-auto">
           <div className="mx-auto">{children}</div>
         </main>
 

@@ -37,6 +37,10 @@ export async function POST(req: NextRequest) {
       sender: currentUser,
       type: "comment",
       isRead: false,
+      post:{
+        mediaUrl:post.mediaUrl,
+        mediaType: post.mediaType
+      },
       createdAt: new Date(),
     });
     await Post.findByIdAndUpdate(postId, {

@@ -63,31 +63,28 @@ export default function Profile() {
             </div>
 
             {/* Profile Info */}
-            <div className="flex-1 text-center md:text-left">
-              <div className="flex flex-col md:flex-row md:items-center gap-3 mb-3">
-                <h1 className="text-xl font-bold">{user.fullName}</h1>
-                <p className="text-gray-500 text-sm">
-                  @{user.email?.split("@")[0]}
+            <div className="flex-1 text-center mt-1 md:text-left">
+              <div className="flex flex-col  gap-3 mb-3">
+                <h1 className="text-xl font-bold">{user?.fullName}</h1>
+                <p className="text-gray-500 -mt-3 ml-4 text-sm">
+                  @{user?.email?.split("@")[0]}
                 </p>
               </div>
 
               {/* Stats */}
-              <div className="flex justify-center md:justify-start gap-6 mb-4">
-                <div className="text-center">
+              <div className="flex justify-center text-2xl md:justify-start gap-6 ml-6 mb-4">
+                <div className="text-center cursor-pointer">
                   <div className="font-bold">{userPosts.length}</div>
-                  <div className="text-xs text-gray-500">Posts</div>
+                  <div className="text-sm text-gray-500">Posts</div>
                 </div>
-                <div className="text-center">
-                  <div className="font-bold">0</div>
-                  <div className="text-xs text-gray-500">Following</div>
+                <div className="text-center cursor-pointer">
+                  <div className="font-bold">{Array.isArray(user?.following) ? user.following.length : 0}</div>
+                  <div className="text-sm text-gray-500">Following</div>
                 </div>
-                <div className="text-center">
-                  <div className="font-bold">0</div>
-                  <div className="text-xs text-gray-500">Followers</div>
-                </div>
-                <div className="text-center">
-                  <div className="font-bold">0</div>
-                  <div className="text-xs text-gray-500">Likes</div>
+                
+                <div className="text-center cursor-pointer">
+                  <div className="font-bold">{Number(user.likes) || 0}</div>
+                  <div className="text-sm text-gray-500">Likes </div>
                 </div>
               </div>
 

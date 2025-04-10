@@ -32,16 +32,19 @@ const UsersSuggestSidebar = () => {
   return (
     <div>
       <div className="px-4 py-2 mb-2">
-        <h3 className="text-sm font-medium text-muted-foreground mb-4">
+        <h3 className="text-[14px] mt-2 font-medium text-muted-foreground mb-4">
           Suggested accounts
         </h3>
         <div className="space-y-3">
           {filterUsers?.map((account: IUser, index: number) => (
-            <div key={index} className="flex items-center gap-3 px-2 py-1.5 rounded-lg hover:bg-accent/50 transition-colors">
+            <div
+              key={index}
+              className="flex items-center  gap-3 px-2 py-1.5 rounded-lg hover:bg-accent/50 transition-colors"
+            >
               <Link href={`/user/${account._id}`}>
-                <Avatar className="w-9 h-9 border border-border">
+                <Avatar className="w-12 h-12 border  shadow-lg">
                   <AvatarImage src={account.image} alt={account.fullName} />
-                  <AvatarFallback>
+                  <AvatarFallback className="text-black bg-gradient-to-t from-blue-400/80 font-semibold to-violet-500/80 ">
                     {account.email.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -64,7 +67,7 @@ const UsersSuggestSidebar = () => {
                     }}
                     variant={"custombtn"}
                     size="sm"
-                    className=" rounded-full text-xs px-3 h-7"
+                    className="w-24 cursor-pointer shadow rounded-full text-xs px-3 h-7"
                   >
                     <UserPlus className="h-4 w-4 mr-1" />
                     Follow

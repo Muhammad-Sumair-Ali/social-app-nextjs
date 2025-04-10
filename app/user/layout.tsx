@@ -12,7 +12,7 @@ export default function UserLayout({
           <Sidebar />
         </aside>
 
-        <main className="flex-1 p-2 py-6 border-2 border-red-400 min-h-screen bg-white overflow-y-auto">
+        <main className="flex-1 p-2 py-6  min-h-screen bg-white overflow-y-auto">
           <div className=" mx-auto">{children}</div>
         </main>
       </div>

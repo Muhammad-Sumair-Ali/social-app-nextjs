@@ -16,6 +16,7 @@ import {
   Send,
   Globe,
   MoreVertical,
+  Delete,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ import { formatDateIntoAgoTimes, getFirstNameFromEmail } from "@/lib/helpers";
 import type { PostCardProps } from "@/lib/types";
 import Link from "next/link";
 import { useSuggestedUsers } from "@/app/context/suggestingUsersContext";
+import axios from "axios";
 
 const shareLinks = [
   { id: "copy", icon: Copy, label: "Copy link" },
@@ -64,23 +66,36 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     showComments,
     setShowComments,
     saved,
-    handleFollow
+    handleFollow,
   } = usePostsActions({ post });
   const { fetchSuggestedUsers } = useSuggestedUsers();
 
+  const handleDeletepost = async (postId: string) => {
+    if (!postId) return;
+    try {
+      const res = await axios.delete("/api/posts", {
+        data: {
+          postId: postId,
+        },
+      });
+      console.log("post deleted success", res);
+    } catch (error) {
+      console.error("Error delete Post", error);
+    }
+  };
   return (
     <Card className=" mx-auto overflow-hidden shadow-md rounded-lg bg-gradient-to-t from-gray-50 to-blue-200/20 dark:bg-zinc-900">
-      <CardHeader className="px-4 py-3 -mt-4 space-y-0">
+      <CardHeader className="px-4 py-1 -mt-4 space-y-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href={`/user/${post.user._id}`}>
-              <Avatar className="h-12 w-12 lg:w-14 lg:h-14 border border-gray-200 dark:border-gray-700">
+              <Avatar className="h-12 w-12 lg:w-14 shadow-lg lg:h-14 border border-gray-200 dark:border-gray-700">
                 <AvatarImage
                   src={post?.user.image || ""}
                   alt={post?.user.fullName}
                 />
-                <AvatarFallback className="bg-gray-200 dark:bg-gray-700">
-                  {post?.user?.email?.charAt(0).toUpperCase() || "U"}
+                <AvatarFallback className="text-black bg-gradient-to-t from-blue-400/80 font-semibold to-violet-500/80 ">
+                  {post.user.email.substring(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             </Link>
@@ -101,15 +116,15 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           <div className="flex items-center gap-2">
             {!isOwnPost && (
               <Button
-              onClick={async () => {
-                await handleFollow();
-                fetchSuggestedUsers();
-              }}
+                onClick={async () => {
+                  await handleFollow();
+                  fetchSuggestedUsers();
+                }}
                 variant={isFollowing ? "outline" : "default"}
                 size="sm"
-                className="rounded-full text-xs px-3 h-8"
+                className="rounded-full shadow cursor-pointer text-xs px-3 h-8"
               >
-                {isFollowing ? (
+                {!isFollowing ? (
                   <>
                     <UserCheck className="h-4 w-4 mr-1" />
                     Following
@@ -150,6 +165,16 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                   )}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
+                {isOwnPost && (
+                  <DropdownMenuItem
+                    onClick={() => handleDeletepost(post._id)}
+                    className="cursor-pointer"
+                  >
+                    <Delete className="h-4 w-4 mr-2 text-red-500" />
+                    Delete Post
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
                 {shareLinks.map((link) => (
                   <DropdownMenuItem
                     key={link.id}
@@ -170,9 +195,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         {post.caption && (
           <p className="text-sm  mb-3 whitespace-pre-line">{post.caption}</p>
         )}
-        <div
-          className="overflow-hidden rounded-md bg-black"
-        >
+        <div className="overflow-hidden rounded-md bg-black shadow-lg">
           {post.mediaType === "image" ? (
             <Image
               src={post.mediaUrl || "https://placehold.co/600x400"}
@@ -180,7 +203,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               width={500}
               height={400}
               unoptimized
-              className="w-full object-cover bg-black"
+              className="w-full object-cover"
             />
           ) : (
             <CustomVideoPlayer
@@ -262,24 +285,24 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             <div className="max-h-60 overflow-y-auto space-y-3 pr-1">
               {comments.length > 0 ? (
                 comments.map((comment, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Avatar className="h-8 w-8 border border-white dark:border-zinc-800">
+                  <div key={index} className="flex gap-2 ">
+                    <Avatar className="h-11 w-11 border border-white shadow dark:border-zinc-800">
                       <AvatarImage
                         src={comment?.user?.image || ""}
                         alt={comment?.user?.name}
                       />
-                      <AvatarFallback className="bg-gray-200 dark:bg-gray-700 text-xs">
-                        {comment?.user?.email?.charAt(0).toUpperCase() || "U"}
+                      <AvatarFallback className="text-black text-sm bg-gradient-to-t from-blue-400/80  to-violet-500/80 ">
+                        {comment?.user?.email?.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <div className="bg-white dark:bg-zinc-800 rounded-lg px-3 py-2">
-                        <p className="text-xs font-medium">
+                        <p className="text-sm font-medium">
                           {comment.user.name
                             ? comment.user.name
                             : getFirstNameFromEmail(comment.user.email)}
                         </p>
-                        <p className="text-sm">{comment.text}</p>
+                        <p className="text-sm ml-2 mt-1">{comment.text}</p>
                       </div>
                       <p className="text-[10px] text-muted-foreground mt-1 ml-1">
                         {formatDateIntoAgoTimes(comment.createdAt)}

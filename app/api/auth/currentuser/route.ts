@@ -1,5 +1,6 @@
 import { authOptions } from "@/lib/authOptions";
 import { connectDatabase } from "@/lib/db";
+import { getTotalLikesOfUser } from "@/lib/getUserLikes";
 import User from "@/models/Users";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
@@ -14,7 +15,9 @@ export async function GET() {
     const userId = session.user.id;
 
     await connectDatabase();
-    const user = await User.findById(userId).select("-password")
+
+    const totalLikes = await getTotalLikesOfUser(userId);
+    const user = await User.findByIdAndUpdate(userId, { likes: totalLikes }).select("-password")
 
     if (!user) {
       return NextResponse.json(

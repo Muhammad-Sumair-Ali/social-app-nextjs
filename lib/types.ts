@@ -101,6 +101,9 @@ export interface IUser {
         ref: 'User',
         default: object[]
       }
+    likes:{
+      type :number
+    }  
     providers: {
         provider: string;
         providerId: string;
@@ -113,15 +116,15 @@ export interface IUser {
 
 
 
-
-
-
 export interface INotification {
   _id?: Types.ObjectId;
   recipient: IUser;
   sender: IUser;
   type: "follow" | "like" | "comment";
-  post?: PostCardData | null;
+  post?: {
+    mediaUrl: string;
+    mediaType: "image" | "video";
+  }
   isRead: boolean;
   createdAt: Date;
 }

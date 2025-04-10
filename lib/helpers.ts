@@ -27,3 +27,26 @@ import { formatDistanceToNow } from "date-fns";
       return (firstInitial + lastInitial).toUpperCase();
     }
   };
+
+
+
+
+
+  // utils/extractPublicId.ts
+export const extractPublicId = (mediaUrl: string): string => {
+  try {
+    if (typeof mediaUrl !== "string") {
+      throw new Error("Invalid media URL");
+    }
+
+    const parts = mediaUrl.split("/upload/");
+    if (parts.length < 2) {
+      throw new Error("Invalid media URL format");
+    }
+
+    return parts[1].split("/")[1] || "";
+  } catch (error) {
+    console.error("Error extracting public_id:", error);
+    return "";
+  }
+};
