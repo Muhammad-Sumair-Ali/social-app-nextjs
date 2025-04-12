@@ -27,6 +27,20 @@ export const usePostsActions = ({ post }: PostCardProps) => {
       .some((id: any) => id.toString() === user?._id?.toString()) ?? false
   );
 
+    const handleDeletepost = async (postId: string) => {
+      if (!postId) return;
+      try {
+          await axios.delete("/api/posts/delete", {
+          params: {
+            id: postId,
+          },
+        });
+        alert("post deleted")
+      } catch (error) {
+        console.error("Error delete Post", error);
+      }
+    };
+    
   const handleLike = async () => {
     try {
       const response = await axios.post("/api/posts/like", {
@@ -143,6 +157,7 @@ export const usePostsActions = ({ post }: PostCardProps) => {
   };
 
   return {
+    handleDeletepost,
     handleComment,
     handleFollow,
     handleLike,
@@ -172,7 +187,7 @@ export const useFetchPosts = () => {
 
   const handleFetchPosts = async () => {
     try {
-      const response = await axios.get(`/api/posts?page=${page}&limit=2`);
+      const response = await axios.get(`/api/posts?page=${page}&limit=4`);
       const newPosts = response.data.posts;
 
       if (newPosts.length === 0) {
@@ -180,7 +195,16 @@ export const useFetchPosts = () => {
         return;
       }
 
-      setPosts((prev) => [...prev, ...newPosts]);
+      setPosts((prevPosts) => {
+        const combined = [...prevPosts, ...newPosts];
+        const uniquePosts = combined.filter(
+          (post, index, self) =>
+            index === self.findIndex((p) => p._id === post._id)
+        );
+        return uniquePosts;
+      });
+      
+      
     } catch (error) {
       console.error("Error fetching posts:", error);
       setError("Failed to load posts. Please try again later.");
@@ -188,12 +212,20 @@ export const useFetchPosts = () => {
       setLoading(false);
     }
   };
-
+  const refetchPosts = async () => {
+    setPage(1); 
+    setPosts([]); 
+    await handleFetchPosts(); 
+  };
+  
   const handleInfiniteScroll = useCallback(() => {
     try {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+      const windowHeight = window.innerHeight;
+      const scrollHeight = document.documentElement.scrollHeight;
+  
       if (
-        window.innerHeight + document.documentElement.scrollTop + 100 >=
-          document.documentElement.scrollHeight &&
+        scrollTop + windowHeight + 100 >= scrollHeight &&
         hasMore &&
         !loading
       ) {
@@ -204,8 +236,12 @@ export const useFetchPosts = () => {
       console.error("Error in infinite scroll:", error);
     }
   }, [hasMore, loading]);
+  
 
   return {
+    refetchPosts,
+    setLoading,
+    setPage,
     page,
     hasMore,
     posts,

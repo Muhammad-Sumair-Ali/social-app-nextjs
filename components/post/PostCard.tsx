@@ -36,12 +36,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
 import CustomVideoPlayer from "../CustomVideoPlayer";
-import { usePostsActions } from "@/hooks/usePostsActions";
+import { useFetchPosts, usePostsActions } from "@/hooks/usePostsActions";
 import { formatDateIntoAgoTimes, getFirstNameFromEmail } from "@/lib/helpers";
 import type { PostCardProps } from "@/lib/types";
 import Link from "next/link";
 import { useSuggestedUsers } from "@/app/context/suggestingUsersContext";
-import axios from "axios";
 
 const shareLinks = [
   { id: "copy", icon: Copy, label: "Copy link" },
@@ -67,25 +66,21 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     setShowComments,
     saved,
     handleFollow,
+    handleDeletepost,
   } = usePostsActions({ post });
   const { fetchSuggestedUsers } = useSuggestedUsers();
+  const { refetchPosts } = useFetchPosts();
 
-  const handleDeletepost = async (postId: string) => {
-    if (!postId) return;
-    try {
-      const res = await axios.delete("/api/posts", {
-        data: {
-          postId: postId,
-        },
-      });
-      console.log("post deleted success", res);
-    } catch (error) {
-      console.error("Error delete Post", error);
-    }
+  const deletePost = async (postId: string) => {
+    if(!postId) return new Error("Post Id Is required");
+    await handleDeletepost(postId);
+    refetchPosts();
   };
+
+
   return (
     <Card className=" mx-auto overflow-hidden shadow-md rounded-lg bg-gradient-to-t from-gray-50 to-blue-200/20 dark:bg-zinc-900">
-      <CardHeader className="px-4 py-1 -mt-4 space-y-0">
+      <CardHeader className="px-4 pt-1 -mt-4 space-y-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href={`/user/${post.user._id}`}>
@@ -94,7 +89,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                   src={post?.user.image || ""}
                   alt={post?.user.fullName}
                 />
-                <AvatarFallback className="text-black bg-gradient-to-t from-blue-400/80 font-semibold to-violet-500/80 ">
+                <AvatarFallback fallbackKey={post.user.email}>
                   {post.user.email.substring(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -139,13 +134,9 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 rounded-full hover:bg-muted"
-                >
-                  <MoreVertical className="h-7 w-7" />
-                </Button>
+                <button className="h-10 cursor-pointer hover:bg-black/10 w-10 flex overflow-hidden justify-center items-center rounded-full bg-black/5 p-2">
+                  <MoreVertical size={45} className=" font-bold  " />
+                </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem
@@ -167,7 +158,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 <DropdownMenuSeparator />
                 {isOwnPost && (
                   <DropdownMenuItem
-                    onClick={() => handleDeletepost(post._id)}
+                    onClick={() => deletePost(post._id)}
                     className="cursor-pointer"
                   >
                     <Delete className="h-4 w-4 mr-2 text-red-500" />
@@ -191,26 +182,29 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         </div>
       </CardHeader>
 
-      <CardContent className="px-5 pt-0 pb-2 -mt-6">
+      <CardContent className="px-4 lg:px-5 pt-0 md:pb-2 -mt-6">
         {post.caption && (
-          <p className="text-sm  mb-3 whitespace-pre-line">{post.caption}</p>
+          <p className="text-sm ml-2 mb-3 whitespace-pre-line">
+            {post.caption}
+          </p>
         )}
         <div className="overflow-hidden rounded-md bg-black shadow-lg">
           {post.mediaType === "image" ? (
             <Image
-              src={post.mediaUrl || "https://placehold.co/600x400"}
+              src={post.mediaUrl}
               alt="Post content"
               width={500}
               height={400}
               unoptimized
-              className="w-full object-cover"
+              className="w-full min-h-[500px] md:min-h-[400px] max-h-[900px]  object-cover"
             />
           ) : (
             <CustomVideoPlayer
               src={post.mediaUrl}
               width="100%"
               height="100%"
-              className="object-contain"
+              // className="object-cover flex min-h-[450px] max-h-[900px]"
+              className="object-contain min-h-[400px] flex justify-between items-center md:min-h-[450px] max-h-[900px]"
               autoPlay={false}
               loop={true}
               muted={false}

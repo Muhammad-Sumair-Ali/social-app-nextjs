@@ -31,19 +31,12 @@ const ListingPostsCards: React.FC = () => {
    console.error("Error fetching posts:", error);
   }
 
-  if (posts?.length === 0 && !loading) {
-    return (
-      <div className="text-center py-8 max-w-md mx-auto">
-        <h3 className="text-xl font-medium mb-2">No posts yet</h3>
-        <p className="text-gray-600">
-          Follow more users or create a post to see content here.
-        </p>
-      </div>
-    );
-  }
-
+  
+  console.log("posts => ",posts)
   return (
-    <div className="space-y-14 ring-amber-400 m-auto -mt-4">
+    <div className="space-y-14 ring-amber-400 m-auto -mt-4 mb-10">
+
+
       {posts.map((post, idx) => (
         <PostCard key={idx} post={post} />
       ))}

@@ -42,9 +42,11 @@ const UsersSuggestSidebar = () => {
               className="flex items-center  gap-3 px-2 py-1.5 rounded-lg hover:bg-accent/50 transition-colors"
             >
               <Link href={`/user/${account._id}`}>
-                <Avatar className="w-12 h-12 border  shadow-lg">
+               
+
+                <Avatar className="h-12 w-12 lg:w-14 shadow lg:h-14 border border-gray-200 dark:border-gray-700">
                   <AvatarImage src={account.image} alt={account.fullName} />
-                  <AvatarFallback className="text-black bg-gradient-to-t from-blue-400/80 font-semibold to-violet-500/80 ">
+                  <AvatarFallback fallbackKey={account.email}>
                     {account.email.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>

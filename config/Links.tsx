@@ -3,8 +3,7 @@ import {
     Home,
     Compass,
     PlusSquare,
-    Heart,
-    User,
+      User,
     TrendingUp,
     Bell,
   } from "lucide-react";
@@ -30,7 +29,7 @@ export const USER_NAV_LINKS = [
     {
       href: "/user/notifications",
       label: "Notifications",
-      icon: <Heart className="w-6 h-6" />,
+      icon: <Bell className="w-6 h-6" />,
     },
     {
       href: "/messages",

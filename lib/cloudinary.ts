@@ -26,7 +26,7 @@ export const uploadToCloudinary = async (file: any, folder: string) => {
 
 export const deleteFromCloudinary = async (publicId: string, resourceType: string = "image") => {
   try {
-    await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+    await cloudinary.uploader.destroy(`posts/${publicId}`, { resource_type: resourceType });
     return true;
   } catch (error) {
     console.error("Error deleting from Cloudinary:", error);

@@ -2,12 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import {
-  Menu,
-  X,
-  Upload,
-  LogIn,
-} from "lucide-react";
+import { Menu, X, Upload, LogIn } from "lucide-react";
 import { useAuth } from "@/app/context/useAuth";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -21,16 +16,30 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
-  // Prevent hydration mismatch
+  const storedNotifications =
+    typeof window !== "undefined"
+      ? localStorage.getItem("unreadNotificationsCount")
+      : null;
+
+  const [notificationData, setNotificationData] = useState();
+
+
+
+
+  useEffect(() => {
+    if(storedNotifications){
+      setNotificationData(
+        storedNotifications ? JSON.parse(storedNotifications) : null
+      );
+    }
+  }, [storedNotifications]);
+
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-
-
-
   if (!mounted) return null;
-
   return (
     <>
       {/* Mobile bottom navigation */}
@@ -84,31 +93,31 @@ export default function Sidebar() {
       {/* Desktop sidebar */}
       <div className="hidden lg:flex flex-col w-[280px] bg-background border-r border-border h-screen sticky top-0 overflow-y-auto scrollbar-hide">
         <nav className="flex-1 px-3 mt-4">
-        <div className="mb-6">
-              {user ? (
-                <Link
-                  href="/user/upload"
-                  onClick={() => setIsOpen(false)}
-                  className="block"
-                >
-                  <div className="w-full flex items-center gap-3 px-4 py-2 rounded-md text-white bg-gradient-to-r from-slate-700 to-zinc-800 hover:opacity-90 transition">
-                    <Upload className="w-5 h-5" />
-                    <span>Upload</span>
-                  </div>
-                </Link>
-              ) : (
-                <Link
-                  href="/login"
-                  onClick={() => setIsOpen(false)}
-                  className="block"
-                >
-                  <div className="w-full flex items-center gap-3 px-4 py-2 rounded-md text-white bg-gradient-to-r from-slate-700 to-zinc-800 hover:opacity-90 transition">
-                    <LogIn className="w-5 h-5" />
-                    <span>Log in</span>
-                  </div>
-                </Link>
-              )}
-            </div>
+          <div className="mb-6">
+            {user ? (
+              <Link
+                href="/user/upload"
+                onClick={() => setIsOpen(false)}
+                className="block"
+              >
+                <div className="w-full flex items-center gap-3 px-4 py-2 rounded-md text-white bg-gradient-to-r from-slate-700 to-zinc-800 hover:opacity-90 transition">
+                  <Upload className="w-5 h-5" />
+                  <span>Upload</span>
+                </div>
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setIsOpen(false)}
+                className="block"
+              >
+                <div className="w-full flex items-center gap-3 px-4 py-2 rounded-md text-white bg-gradient-to-r from-slate-700 to-zinc-800 hover:opacity-90 transition">
+                  <LogIn className="w-5 h-5" />
+                  <span>Log in</span>
+                </div>
+              </Link>
+            )}
+          </div>
 
           <div className="space-y-1 mb-8">
             {USER_NAV_LINKS.map((link) => {
@@ -139,6 +148,13 @@ export default function Sidebar() {
                     )}
                   </div>
                   <span>{link.label}</span>
+                  {link.label === "Notifications" &&
+                    notificationData &&
+                    notificationData > 0 && (
+                      <span className=" text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">
+                        {notificationData}
+                      </span>
+                    )}
                 </Link>
               );
             })}
@@ -234,8 +250,6 @@ export default function Sidebar() {
                 })}
               </ul>
             </nav>
-
-            
           </div>
         </motion.div>
       )}

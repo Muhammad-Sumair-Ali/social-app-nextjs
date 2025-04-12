@@ -4,6 +4,7 @@ import * as React from "react"
 import * as AvatarPrimitive from "@radix-ui/react-avatar"
 
 import { cn } from "@/lib/utils"
+import { getColorFromString } from "@/lib/helpers"
 
 function Avatar({
   className,
@@ -34,20 +35,28 @@ function AvatarImage({
   )
 }
 
+
 function AvatarFallback({
   className,
+  fallbackKey = "",
   ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
+}: React.ComponentProps<typeof AvatarPrimitive.Fallback> & {
+  fallbackKey?: string
+}) {
+  const bgColor = getColorFromString(fallbackKey)
+
   return (
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
       className={cn(
-        "bg-muted flex size-full items-center justify-center rounded-full",
+        "flex size-full items-center justify-center rounded-full text-white",
+        bgColor,
         className
       )}
       {...props}
     />
   )
 }
+
 
 export { Avatar, AvatarImage, AvatarFallback }

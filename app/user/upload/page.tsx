@@ -1,7 +1,8 @@
+
 "use client";
 
 import type React from "react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Camera,
   X,
@@ -33,7 +34,6 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import Image from "next/image";
@@ -46,53 +46,28 @@ export default function CreatePost() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [activeTab, setActiveTab] = useState<"upload" | "preview">("upload");
-  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
+  
     // Check file size - limit to 10MB
     if (file.size > 10 * 1024 * 1024) {
       setError("File is too large. Maximum size is 10MB.");
       return;
     }
-
-    simulateUpload(file);
-  };
-
-  const simulateUpload = (file: File) => {
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    const reader = new FileReader();
-
-    // Simulate progress
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        const newProgress = prev + Math.random() * 15;
-        return newProgress >= 100 ? 100 : newProgress;
-      });
-    }, 200);
-
-    reader.onload = () => {
-      setTimeout(() => {
-        clearInterval(interval);
-        setUploadProgress(100);
-        setMediaPreview(reader.result as string);
-        setMediaType(file.type.startsWith("video/") ? "video" : "image");
-        setError("");
-        setIsUploading(false);
-        setActiveTab("preview");
-      }, 1000);
-    };
-
-    reader.readAsDataURL(file);
-  };
+  
+    setSelectedFile(file);
+    const objectUrl = URL.createObjectURL(file);
+    setMediaPreview(objectUrl);
+    setMediaType(file.type.startsWith("video/") ? "video" : "image");
+    setError("");
+    setActiveTab("preview");
+  }
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -107,32 +82,50 @@ export default function CreatePost() {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-
+  
     const file = e.dataTransfer.files?.[0];
     if (!file) return;
-
+  
     // Check file size - limit to 10MB
     if (file.size > 10 * 1024 * 1024) {
       setError("File is too large. Maximum size is 10MB.");
       return;
     }
+  
+    setSelectedFile(file);
+    const objectUrl = URL.createObjectURL(file);
+    setMediaPreview(objectUrl);
+    setMediaType(file.type.startsWith("video/") ? "video" : "image");
+    setError("");
+    setActiveTab("preview");
+  }
 
-    simulateUpload(file);
-  };
-
+  useEffect(() => {
+    return () => {
+      if (mediaPreview && mediaPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(mediaPreview);
+      }
+    };
+  }, [mediaPreview]);
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!caption.trim() || !mediaPreview) {
+    if (!caption.trim() || !selectedFile) {
       setError("Please add both caption and media");
       return;
     }
-
+  
     setIsLoading(true);
     try {
-      const response = await axios.post("/api/posts/create", {
-        caption,
-        mediaBase64: mediaPreview,
-        mediaType,
+      const formData = new FormData();
+      formData.append('caption', caption);
+      formData.append('media', selectedFile);
+      formData.append('mediaType', mediaType || '');
+  
+      const response = await axios.post("/api/posts/create", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
       console.log("Post created", response.data);
       router.push("/");
@@ -145,7 +138,7 @@ export default function CreatePost() {
   };
 
   return (
-    <div className="w-full mx-auto ">
+    <div className="w-full mx-auto">
       <Card className="shadow-xl border-0 overflow-hidden">
         <CardHeader className="sr-only bg-gradient-to-r from-primary/10 to-primary/5 border-b"></CardHeader>
 
@@ -200,7 +193,6 @@ export default function CreatePost() {
                 <TabsList className="grid w-full grid-cols-2 mb-4">
                   <TabsTrigger
                     value="upload"
-                    disabled={isUploading}
                     className="flex items-center gap-2"
                   >
                     <Upload className="h-4 w-4" />
@@ -229,55 +221,35 @@ export default function CreatePost() {
                     onDrop={handleDrop}
                   >
                     <div className="flex flex-col items-center justify-center py-12 px-6 bg-slate-50 rounded-lg">
-                      {isUploading ? (
-                        <div className="w-full max-w-xs flex flex-col items-center">
-                          <div className="mb-4 p-6 rounded-full bg-primary/10 animate-pulse">
-                            <Loader2 className="w-12 h-12 text-primary animate-spin" />
-                          </div>
-                          <h3 className="text-xl font-semibold mb-4">
-                            Uploading media...
-                          </h3>
-                          <Progress
-                            value={uploadProgress}
-                            className="w-full h-2 mb-2"
-                          />
-                          <p className="text-sm text-muted-foreground">
-                            {Math.round(uploadProgress)}% complete
-                          </p>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="mb-4 p-6 rounded-full bg-slate-100 group-hover:bg-primary/10 transition-colors">
-                            <FileImage className="w-12 h-12 text-slate-400" />
-                          </div>
-                          <h3 className="text-xl font-semibold mb-2">
-                            Select media to upload
-                          </h3>
-                          <p className="text-muted-foreground text-center mb-6 max-w-md">
-                            Or drag and drop files here. You can upload images
-                            or videos up to 10MB.
-                          </p>
-                          <div className="flex flex-col sm:flex-row gap-3">
-                            <Button
-                              type="button"
-                              onClick={() => fileInputRef.current?.click()}
-                              className="bg-primary hover:bg-primary/90 gap-2"
-                            >
-                              <Upload className="h-4 w-4" />
-                              Select files
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => fileInputRef.current?.click()}
-                              className="gap-2"
-                            >
-                              <Camera className="h-4 w-4" />
-                              Use camera
-                            </Button>
-                          </div>
-                        </>
-                      )}
+                      <div className="mb-4 p-6 rounded-full bg-slate-100 group-hover:bg-primary/10 transition-colors">
+                        <FileImage className="w-12 h-12 text-slate-400" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2">
+                        Select media to upload
+                      </h3>
+                      <p className="text-muted-foreground text-center mb-6 max-w-md">
+                        Or drag and drop files here. You can upload images
+                        or videos up to 10MB.
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <Button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="bg-primary hover:bg-primary/90 gap-2"
+                        >
+                          <Upload className="h-4 w-4" />
+                          Select files
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="gap-2"
+                        >
+                          <Camera className="h-4 w-4" />
+                          Use camera
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </TabsContent>
@@ -297,7 +269,6 @@ export default function CreatePost() {
                           Change media
                         </Button>
                       </div>
-
                       <div className="absolute top-2 right-2 z-20">
                         <Button
                           type="button"
@@ -313,7 +284,6 @@ export default function CreatePost() {
                           <X className="w-4 h-4" />
                         </Button>
                       </div>
-
                       <div className="absolute top-2 left-2 z-20">
                         <Badge
                           variant="secondary"
@@ -332,12 +302,14 @@ export default function CreatePost() {
                           )}
                         </Badge>
                       </div>
-
                       {mediaType === "image" ? (
                         <Image
-                          src={mediaPreview || "https://placehold.co/600x400"}
+                          src={mediaPreview}
                           alt="Preview"
+                          width={600}
+                          height={400}
                           className="w-full h-64 object-cover"
+                          unoptimized={mediaPreview?.startsWith("blob:")} 
                         />
                       ) : (
                         <CustomVideoPlayer
