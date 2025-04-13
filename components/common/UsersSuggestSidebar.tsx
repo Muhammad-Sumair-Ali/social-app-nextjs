@@ -1,17 +1,29 @@
 "use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/app/context/useAuth";
 import { useUsersActions } from "@/hooks/useUsersAction";
-import { Button } from "../ui/button";
-import { UserPlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { UserPlus, RefreshCw, Users } from "lucide-react";
 import { useSuggestedUsers } from "@/app/context/suggestingUsersContext";
-import { IUser } from "@/lib/types";
+import type { IUser } from "@/lib/types";
+import { motion } from "framer-motion";
 
 const UsersSuggestSidebar = () => {
   const { user } = useAuth();
-  const { users, fetchSuggestedUsers } = useSuggestedUsers();
+  const { users, fetchSuggestedUsers, loading } = useSuggestedUsers();
   const { handleFollow } = useUsersActions();
+
+  useEffect(() => {
+    if (!users?.length && user) {
+      fetchSuggestedUsers();
+    }
+  }, [user, users, fetchSuggestedUsers]);
 
   const filterUsers = users?.filter((account: IUser) => {
     const isFollowing =
@@ -24,63 +36,128 @@ const UsersSuggestSidebar = () => {
 
   if (!user) {
     return (
-      <div className="p-6">
-        <h2>Login to view user.......... </h2>
-      </div>
+      <Card className="border-none shadow-none bg-transparent">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-medium flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Discover People
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center p-6 text-center space-y-3">
+            <Users className="h-12 w-12 text-muted-foreground/50" />
+            <h3 className="text-base font-medium">Sign in to connect</h3>
+            <p className="text-sm text-muted-foreground">
+              Login to discover and follow interesting people
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
-  return (
-    <div>
-      <div className="px-4 py-2 mb-2">
-        <h3 className="text-[14px] mt-2 font-medium text-muted-foreground mb-4">
-          Suggested accounts
-        </h3>
-        <div className="space-y-3">
-          {filterUsers?.map((account: IUser, index: number) => (
-            <div
-              key={index}
-              className="flex items-center  gap-3 px-2 py-1.5 rounded-lg hover:bg-accent/50 transition-colors"
-            >
-              <Link href={`/user/${account._id}`}>
-               
 
-                <Avatar className="h-12 w-12 lg:w-14 shadow lg:h-14 border border-gray-200 dark:border-gray-700">
-                  <AvatarImage src={account.image} alt={account.fullName} />
-                  <AvatarFallback fallbackKey={account.email}>
-                    {account.email.substring(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              </Link>
-              <div className="flex flex-col justify-between gap-2">
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium">
-                    @{account.fullName}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {account.email.split("_").join(" ")}
+  return (
+    <Card className="border-none shadow-none bg-transparent">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-[16px] font-medium flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Discover People
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={fetchSuggestedUsers}
+            className="h-8 w-8"
+            title="Refresh suggestions"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardHeader>
+
+      <CardContent className="-mt-7">
+        {loading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center gap-3 p-2">
+                <Skeleton className="h-12 w-12 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-3 w-32" />
+                </div>
+                <Skeleton className="h-8 w-20 ml-auto rounded-full" />
+              </div>
+            ))}
+          </div>
+        ) : filterUsers?.length === 0 ? (
+          <div className="flex flex-col items-center justify-center p-3 text-center space-y-2">
+            <Badge variant="outline" className="px-3 py-1">
+              All caught up!
+            </Badge>
+            <p className="text-sm text-muted-foreground">
+              You&#39;re following all suggested users
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchSuggestedUsers}
+              className="mt-2"
+            >
+              <RefreshCw className="h-3 w-3 mr-2" />
+              Refresh
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-2 mt-2">
+            {filterUsers?.map((account: IUser, index: number) => (
+              <motion.div
+                key={account._id?.toString()}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: index * 0.05 }}
+                className="flex items-center gap-3 p-2 rounded-xl hover:bg-accent/40 transition-all"
+              >
+                <Link href={`/user/${account._id}`} className="shrink-0">
+                  <Avatar className="h-12 w-12 border border-border shadow-sm transition-transform hover:scale-105">
+                    <AvatarImage src={account.image} alt={account.fullName} />
+                    <AvatarFallback fallbackKey={account.email}>
+                      {account.email.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Link>
+
+                <div className="flex flex-col min-w-0">
+                  <Link
+                    href={`/user/${account._id}`}
+                    className="hover:underline"
+                  >
+                    <span className="text-sm font-medium truncate block">
+                      {account.fullName}
+                    </span>
+                  </Link>
+                  <span className="text-xs text-muted-foreground truncate">
+                    @{account.email?.split("@")[0] || account.email}
                   </span>
                 </div>
-
-                {filterUsers && (
-                  <Button
-                    onClick={async () => {
-                      await handleFollow(account);
-                      fetchSuggestedUsers();
-                    }}
-                    variant={"custombtn"}
-                    size="sm"
-                    className="w-24 cursor-pointer shadow rounded-full text-xs px-3 h-7"
-                  >
-                    <UserPlus className="h-4 w-4 mr-1" />
-                    Follow
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+                <Button
+                  onClick={async () => {
+                    await handleFollow(account);
+                    fetchSuggestedUsers();
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="ml-auto shrink-0 rounded-full h-8 px-3 hover:bg-primary hover:text-primary-foreground transition-colors"
+                >
+                  <UserPlus className="h-3.5 w-3.5 mr-1.5" />
+                  Follow
+                </Button>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import PostCard from "./PostCard";
 import PostCardSkeleton from "../panel/PostCardSkeleton";
 import { useFetchPosts } from "@/hooks/usePostsActions";
+import SuggestUsersMobile from "../common/SuggestUserMobile";
 
 const ListingPostsCards: React.FC = () => {
   const {
@@ -28,17 +29,17 @@ const ListingPostsCards: React.FC = () => {
   }, [handleInfiniteScroll]);
 
   if (error) {
-   console.error("Error fetching posts:", error);
+    console.error("Error fetching posts:", error);
   }
 
-  
-  console.log("posts => ",posts)
   return (
-    <div className="space-y-14 ring-amber-400 m-auto -mt-4 mb-10">
+    <div className="space-y-12 ring-amber-400 m-auto -mt-4 mb-10">
+      {posts.map((post, index) => (
+        <React.Fragment key={post._id}>
+          <PostCard key={index} post={post} />
 
-
-      {posts.map((post, idx) => (
-        <PostCard key={idx} post={post} />
+          {index === 4 && <SuggestUsersMobile />}
+        </React.Fragment>
       ))}
 
       {loading && <PostCardSkeleton />}

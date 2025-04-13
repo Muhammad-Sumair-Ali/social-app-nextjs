@@ -11,6 +11,7 @@ interface CustomVideoPlayerProps {
   autoPlay?: boolean;
   loop?: boolean;
   muted?: boolean;
+  onLoadedMetadata?: (event: React.SyntheticEvent<HTMLVideoElement>) => void;
 }
 
 const CustomVideoPlayer: React.FC<CustomVideoPlayerProps> = ({

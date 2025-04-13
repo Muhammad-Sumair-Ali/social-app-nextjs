@@ -1,3 +1,4 @@
+
 "use client";
 
 import type React from "react";
@@ -41,6 +42,7 @@ import { formatDateIntoAgoTimes, getFirstNameFromEmail } from "@/lib/helpers";
 import type { PostCardProps } from "@/lib/types";
 import Link from "next/link";
 import { useSuggestedUsers } from "@/app/context/suggestingUsersContext";
+import { useState, useEffect } from "react";
 
 const shareLinks = [
   { id: "copy", icon: Copy, label: "Copy link" },
@@ -70,6 +72,23 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   } = usePostsActions({ post });
   const { fetchSuggestedUsers } = useSuggestedUsers();
   const { refetchPosts } = useFetchPosts();
+  const [mediaLoaded, setMediaLoaded] = useState(false);
+  const [mediaOrientation, setMediaOrientation] = useState("landscape");
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  // Check screen size on mount and resize
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth >= 768); 
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => {
+      window.removeEventListener('resize', checkScreenSize);
+    };
+  }, []);
 
   const deletePost = async (postId: string) => {
     if(!postId) return new Error("Post Id Is required");
@@ -77,9 +96,23 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     refetchPosts();
   };
 
+  // Check media orientation when it loads
+  const handleMediaLoad = (e: React.SyntheticEvent<HTMLImageElement | HTMLVideoElement>) => {
+    const element = e.currentTarget;
+    const width = element instanceof HTMLImageElement ? element.naturalWidth : element instanceof HTMLVideoElement ? element.videoWidth : 0;
+    const height = element instanceof HTMLImageElement ? element.naturalHeight : element instanceof HTMLVideoElement ? element.videoHeight : 0;
+    
+    if (height > width) {
+      setMediaOrientation("portrait");
+    } else {
+      setMediaOrientation("landscape");
+    }
+    
+    setMediaLoaded(true);
+  };
 
   return (
-    <Card className=" mx-auto overflow-hidden shadow-md rounded-lg bg-gradient-to-t from-gray-50 to-blue-200/20 dark:bg-zinc-900">
+    <Card className="mx-auto overflow-hidden shadow-md rounded-lg bg-gradient-to-t from-gray-50 to-blue-200/20 dark:bg-zinc-900">
       <CardHeader className="px-4 pt-1 -mt-4 space-y-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -135,7 +168,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="h-10 cursor-pointer hover:bg-black/10 w-10 flex overflow-hidden justify-center items-center rounded-full bg-black/5 p-2">
-                  <MoreVertical size={45} className=" font-bold  " />
+                  <MoreVertical size={45} className="font-bold" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -188,23 +221,40 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             {post.caption}
           </p>
         )}
-        <div className="overflow-hidden rounded-md bg-black shadow-lg">
+        <div className="overflow-hidden rounded-md bg-gradient-to-br from-zinc-400 via-gray-200 to-zinc-400  shadow-lg">
           {post.mediaType === "image" ? (
             <Image
               src={post.mediaUrl}
-              alt="Post content"
+              alt={post.caption}
               width={500}
               height={400}
               unoptimized
-              className="w-full min-h-[500px] md:min-h-[400px] max-h-[900px]  object-cover"
+              onLoad={isLargeScreen ? handleMediaLoad as any : undefined}
+              className={
+                isLargeScreen
+                  ? `${
+                      mediaOrientation === "portrait" && mediaLoaded
+                        ? "w-auto m-auto max-w-full h-auto md:max-h-[calc(100vh-220px)] lg:max-h-[calc(100vh-80px)] object-contain"
+                        : "w-full min-h-[400px] md:min-h-[400px] max-h-[700px] object-cover"
+                    }`
+                  : "w-full min-h-[500px] md:min-h-[400px] max-h-[900px] object-cover"
+              }
             />
           ) : (
             <CustomVideoPlayer
               src={post.mediaUrl}
               width="100%"
               height="100%"
-              // className="object-cover flex min-h-[450px] max-h-[900px]"
-              className="object-contain min-h-[400px] flex justify-between items-center md:min-h-[450px] max-h-[900px]"
+              onLoadedMetadata={isLargeScreen ? handleMediaLoad as any : undefined}
+              className={
+                isLargeScreen
+                  ? `${
+                      mediaOrientation === "portrait" && mediaLoaded
+                        ? "object-contain min-h-[400px] md:max-h-[calc(100vh-220px)] lg:max-h-[calc(100vh-180px)] flex justify-center items-center"
+                        : "object-contain min-h-[400px] md:min-h-[450px] max-h-[700px] flex justify-between items-center"
+                    }`
+                  : "object-contain min-h-[400px] flex justify-between items-center md:min-h-[450px] max-h-[900px]"
+              }
               autoPlay={false}
               loop={true}
               muted={false}
