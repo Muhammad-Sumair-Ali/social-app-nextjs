@@ -16,11 +16,13 @@ const ListingPostsCards: React.FC = () => {
   } = useFetchPosts();
 
   useEffect(() => {
-    if (hasMore) {
+    handleFetchPosts();
+  }, []);
+  useEffect(() => {
+    if (page > 1 && hasMore) {
       handleFetchPosts();
     }
   }, [page, hasMore]);
-
   useEffect(() => {
     window.addEventListener("scroll", handleInfiniteScroll);
     return () => {
@@ -37,11 +39,9 @@ const ListingPostsCards: React.FC = () => {
       {posts.map((post, index) => (
         <React.Fragment key={post._id}>
           <PostCard key={index} post={post} />
-
           {index === 4 && <SuggestUsersMobile />}
         </React.Fragment>
       ))}
-
       {loading && <PostCardSkeleton />}
     </div>
   );
