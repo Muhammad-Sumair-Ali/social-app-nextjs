@@ -41,7 +41,6 @@ import { useFetchPosts, usePostsActions } from "@/hooks/usePostsActions";
 import { formatDateIntoAgoTimes, getFirstNameFromEmail } from "@/lib/helpers";
 import type { PostCardProps } from "@/lib/types";
 import Link from "next/link";
-import { useSuggestedUsers } from "@/app/context/suggestingUsersContext";
 import { useState, useEffect } from "react";
 
 const shareLinks = [
@@ -70,7 +69,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     handleFollow,
     handleDeletepost,
   } = usePostsActions({ post });
-  const { fetchSuggestedUsers } = useSuggestedUsers();
   const { refetchPosts } = useFetchPosts();
   const [mediaLoaded, setMediaLoaded] = useState(false);
   const [mediaOrientation, setMediaOrientation] = useState("landscape");
@@ -146,7 +144,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               <Button
                 onClick={async () => {
                   await handleFollow();
-                  fetchSuggestedUsers();
                 }}
                 variant={isFollowing ? "outline" : "default"}
                 size="sm"

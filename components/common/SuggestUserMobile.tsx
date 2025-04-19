@@ -1,7 +1,6 @@
 
 "use client"
 
-import { useEffect } from "react"
 import Link from "next/link"
 import { useSuggestedUsers } from "@/app/context/suggestingUsersContext"
 import { useAuth } from "@/app/context/useAuth"
@@ -18,11 +17,7 @@ const SuggestUsersMobile = () => {
   const { users, fetchSuggestedUsers, loading } = useSuggestedUsers()
   const { handleFollow } = useUsersActions()
 
-  useEffect(() => {
-    if (user && (!users || users.length === 0)) {
-      fetchSuggestedUsers()
-    }
-  }, [user, users, fetchSuggestedUsers])
+
 
   const filterUsers = users?.filter((account: IUser) => {
     const isFollowing =
@@ -94,7 +89,7 @@ const SuggestUsersMobile = () => {
                   <Link href={`/user/${account._id}`} className="block -ml-4">
                     <Avatar className="h-20 w-20 border-4 border-background shadow-md hover:scale-105 transition-transform duration-300">
                       <AvatarImage
-                        src={account.image || "/placeholder.svg?height=80&width=80"}
+                        src={account.image || ""}
                         alt={account.fullName}
                       />
                       <AvatarFallback fallbackKey={account.email}  className="text-lg">

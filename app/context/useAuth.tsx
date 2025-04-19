@@ -9,17 +9,20 @@ import { IUser } from '@/lib/types';
 interface AuthContextType {
   user: IUser | null;
   loading: boolean;
+  isToken:string | number 
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  loading: true
+  loading: true,
+  isToken:""
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [loading, setLoading] = useState(true);
   const { data } = useSession();
+  const isToken = typeof window !== undefined ? localStorage.getItem("token") ?? "" : "";
 
   useEffect(() => {
     if (!data?.user) return;
@@ -27,7 +30,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchUser = async () => {
       try {
         const res = await axios.get('/api/auth/currentuser');
-        localStorage.setItem("token",res.data._id)
         setUser(res.data);
         setLoading(false);
 
@@ -44,7 +46,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const contextValue: AuthContextType = {
     user,
-    loading
+    loading,
+    isToken
   };
 
   return (

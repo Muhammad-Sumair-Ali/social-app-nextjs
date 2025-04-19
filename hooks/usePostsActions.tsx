@@ -187,7 +187,7 @@ export const useFetchPosts = () => {
 
   const handleFetchPosts = async () => {
     try {
-      const response = await axios.get(`/api/posts?page=${page}&limit=4`);
+      const response = await axios.get(`/api/posts?page=${page}&limit=8`);
       const newPosts = response.data.posts;
 
       if (newPosts.length === 0) {

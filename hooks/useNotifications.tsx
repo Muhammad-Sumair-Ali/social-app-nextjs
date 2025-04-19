@@ -30,7 +30,7 @@ export const useNotificationsActions = () => {
       await axios.put("/api/notifications");
       await fetchData();
 
-      if (typeof window !== "undefined") {
+      if (typeof window !== undefined) {
         localStorage.removeItem("unreadNotificationsCount");
       }
     } catch (err) {

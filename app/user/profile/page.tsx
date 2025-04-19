@@ -1,45 +1,35 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { useAuth } from "@/app/context/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PencilLine, Settings, Share2 } from "lucide-react";
-import Link from "next/link";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfilePostCard } from "@/components/post/ProfilePostsCard";
 import { ProfileSkeleton } from "@/components/panel/UserProfileSkeleton";
+import LoginFirst from "@/components/panel/LoginFirst";
+import { useUserDataActions } from "@/hooks/useUserDataActions";
 
 export default function Profile() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
-  const [userPosts, setUserPosts] = useState([]);
+  const { fetchUserPosts, isLoading, userPosts } = useUserDataActions();
 
   useEffect(() => {
-    if (user?._id && !loading) {
-      const fetchUserPosts = async () => {
-        try {
-          const response = await axios.post("/api/posts/userposts", {
-            userId: user._id,
-          });
-          setUserPosts(response.data.posts);
-        } catch (error) {
-          console.error("Error fetching user posts:", error);
-        }
-      };
-
-      fetchUserPosts();
+    if (user) {
+      fetchUserPosts(user);
     }
-  }, [loading, user?._id]);
+  }, [user?._id]);
+  
 
- 
-  if (loading) {
-    return <ProfileSkeleton />
-  }
 
   if (!user) {
-    router.push("/login")
-    return null
+     return <LoginFirst />;
+  }
+
+  if (!isLoading) {
+    return <ProfileSkeleton />;
   }
 
   return (
@@ -52,8 +42,8 @@ export default function Profile() {
             <div className="w-24 h-24 md:w-28 md:h-28 rounded-full  bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold shadow-md">
               <Avatar className="h-24 w-24 md:w-28 md:h-28 rounded-full shadow   border-white dark:border-zinc-800 ">
                 <AvatarImage
-                  src={user.image || ""}
-                  alt={user.fullName}
+                  src={user?.image || ""}
+                  alt={user?.fullName}
                   className="object-cover"
                 />
                 <AvatarFallback className="bg-gradient-to-br from-violet-500 to-indigo-600 text-white font-medium">
@@ -78,12 +68,14 @@ export default function Profile() {
                   <div className="text-sm text-gray-500">Posts</div>
                 </div>
                 <div className="text-center cursor-pointer">
-                  <div className="font-bold">{Array.isArray(user?.following) ? user.following.length : 0}</div>
+                  <div className="font-bold">
+                    {Array.isArray(user?.following) ? user.following.length : 0}
+                  </div>
                   <div className="text-sm text-gray-500">Following</div>
                 </div>
-                
+
                 <div className="text-center cursor-pointer">
-                  <div className="font-bold">{Number(user.likes) || 0}</div>
+                  <div className="font-bold">{Number(user?.likes) || 0}</div>
                   <div className="text-sm text-gray-500">Likes </div>
                 </div>
               </div>
@@ -91,14 +83,7 @@ export default function Profile() {
               {/* Bio */}
               <p className="text-sm mb-4">{"Professional Developer 👨‍💻"}</p>
 
-              {/* Website */}
-              <Link
-                href={user.email}
-                className="text-sm text-blue-500 mb-4 inline-block"
-                target="_blank"
-              >
-                🔗 Webite link
-              </Link>
+            
             </div>
 
             {/* Action Buttons */}
@@ -149,7 +134,7 @@ export default function Profile() {
         <TabsContent value="posts" className="max-w-4xl mx-auto px-4 mt-6">
           {userPosts.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
-              {userPosts.map((post,index) => (
+              {userPosts.map((post, index) => (
                 <ProfilePostCard key={index} post={post} />
               ))}
             </div>

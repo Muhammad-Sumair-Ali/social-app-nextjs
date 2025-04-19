@@ -1,57 +1,50 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import axios from "axios";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PencilLine, Settings, Share2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfilePostCard } from "@/components/post/ProfilePostsCard";
 import { ProfileSkeleton } from "@/components/panel/UserProfileSkeleton";
 import { IUser } from "@/lib/types";
+import LoginFirst from "@/components/panel/LoginFirst";
+import { useUserDataActions } from "@/hooks/useUserDataActions";
 
 export default function Profile() {
-  const token =  typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const [user, setUser] = useState<IUser | null>(null);
+
   const { id } = useParams();
-
-  const router = useRouter();
-  const [userPosts, setUserPosts] = useState([]);
-
-
-
+  const [user, setUser] = useState<IUser | null>(null);
 
   useEffect(() => {
-    async function fetchUser() {
-      const res = await axios.get(`/api/auth/user/${id}`);
-      setUser(res.data);
-    }
+    if(!id) return;
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get(`/api/auth/user/${id}`);
+        setUser(res.data);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+
     fetchUser();
   }, [id]);
 
+  const { fetchUserPosts, isLoading, userPosts } = useUserDataActions();
 
   useEffect(() => {
-    if (token && user) {
-      const fetchUserPosts = async () => {
-        try {
-          const response = await axios.post("/api/posts/userposts", {
-            userId: user._id,
-          });
-          setUserPosts(response.data.posts);
-        } catch (error) {
-          console.error("Error fetching user posts:", error);
-        }
-      };
-
-      fetchUserPosts();
+    if (user) {
+      fetchUserPosts(user);
     }
-  }, [user, token]);
-
-
-
+  }, [user?._id]);
+  
 
 
   if (!user) {
-    return <ProfileSkeleton/>
+     return <LoginFirst />;
+  }
+
+  if (!isLoading) {
+    return <ProfileSkeleton />;
   }
 
   return (
@@ -90,37 +83,20 @@ export default function Profile() {
                   <div className="text-sm text-gray-500">Posts</div>
                 </div>
                 <div className="text-center cursor-pointer">
-                  <div className="font-bold">{Array.isArray(user?.following) ? user.following.length : 0}</div>
+                  <div className="font-bold">
+                    {Array.isArray(user?.following) ? user.following.length : 0}
+                  </div>
                   <div className="text-sm text-gray-500">Following</div>
                 </div>
-                
+
                 <div className="text-center cursor-pointer">
-                  <div className="font-bold">{Number(user.likes) || 0}</div>
+                  <div className="font-bold">{Number(user?.likes) || 0}</div>
                   <div className="text-sm text-gray-500">Likes </div>
                 </div>
               </div>
 
               {/* Bio */}
               <p className="text-sm mb-4">{"Professional Developer 👨‍💻"}</p>
-
-            
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-2 mt-2 md:mt-0">
-              <button
-                onClick={() => router.push("/user/settings")}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-md font-medium text-sm flex items-center gap-1"
-              >
-                <PencilLine size={16} />
-                Edit profile
-              </button>
-              <button className="bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-md">
-                <Settings size={16} />
-              </button>
-              <button className="bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-md">
-                <Share2 size={16} />
-              </button>
             </div>
           </div>
         </div>
@@ -152,9 +128,9 @@ export default function Profile() {
         </div>
 
         <TabsContent value="posts" className="max-w-4xl mx-auto px-4 mt-6">
-          {userPosts.length > 0 ? (
+          {userPosts?.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
-              {userPosts.map((post, index) => (
+              {userPosts?.map((post, index) => (
                 <ProfilePostCard key={index} post={post} />
               ))}
             </div>
@@ -163,7 +139,6 @@ export default function Profile() {
               <p className="text-gray-600 mb-4">
                 User haven&apos;t created any posts yet.
               </p>
-             
             </div>
           )}
         </TabsContent>

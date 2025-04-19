@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { IUser } from "@/lib/types";
+import { useAuth } from "./useAuth";
 
 const SuggestedUsersContext = createContext<any>(null);
 
@@ -11,9 +12,9 @@ export const SuggestedUsersProvider = ({
   children: React.ReactNode;
 }) => {
   const [users, setUsers] = useState<IUser[]>([]);
+  const {user} = useAuth()
 
-
- 
+  
 
   const fetchSuggestedUsers = async () => {
     try {
@@ -25,10 +26,11 @@ export const SuggestedUsersProvider = ({
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== undefined) {
       const token = localStorage.getItem('token');
-      if (!token) return;
-      fetchSuggestedUsers();
+      if (user && token) {
+        fetchSuggestedUsers();
+      }
     }
   }, []);
 

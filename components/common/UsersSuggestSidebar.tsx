@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/app/context/useAuth";
@@ -13,17 +12,18 @@ import { UserPlus, RefreshCw, Users } from "lucide-react";
 import { useSuggestedUsers } from "@/app/context/suggestingUsersContext";
 import type { IUser } from "@/lib/types";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 
 const UsersSuggestSidebar = () => {
   const { user } = useAuth();
-  const { users, fetchSuggestedUsers, loading } = useSuggestedUsers();
+  const { users, loading,fetchSuggestedUsers } = useSuggestedUsers();
   const { handleFollow } = useUsersActions();
 
   useEffect(() => {
-    if (!users?.length && user) {
+    if (user) {
       fetchSuggestedUsers();
     }
-  }, [user, users, fetchSuggestedUsers]);
+  }, [user]);
 
   const filterUsers = users?.filter((account: IUser) => {
     const isFollowing =
@@ -143,7 +143,6 @@ const UsersSuggestSidebar = () => {
                 <Button
                   onClick={async () => {
                     await handleFollow(account);
-                    fetchSuggestedUsers();
                   }}
                   variant="outline"
                   size="sm"
