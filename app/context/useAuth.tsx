@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [loading, setLoading] = useState(true);
   const { data } = useSession();
-  const isToken = typeof window !== undefined ? localStorage.getItem("token") ?? "" : "";
+  const isToken = typeof window !== "undefined" ? localStorage.getItem("token") ?? "" : "";
 
   useEffect(() => {
     if (!data?.user) return;

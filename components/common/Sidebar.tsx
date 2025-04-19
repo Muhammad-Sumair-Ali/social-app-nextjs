@@ -17,7 +17,7 @@ export default function Sidebar() {
   const [mounted, setMounted] = useState(false);
 
   const storedNotifications =
-    typeof window !== undefined
+    typeof window !== "undefined"
       ? localStorage.getItem("unreadNotificationsCount")
       : null;
 

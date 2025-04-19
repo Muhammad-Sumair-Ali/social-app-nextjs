@@ -26,7 +26,7 @@ export const SuggestedUsersProvider = ({
   };
 
   useEffect(() => {
-    if (typeof window !== undefined) {
+    if (typeof window !== "undefined") {
       const token = localStorage.getItem('token');
       if (user && token) {
         fetchSuggestedUsers();

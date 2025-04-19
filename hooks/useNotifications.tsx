@@ -30,7 +30,7 @@ export const useNotificationsActions = () => {
       await axios.put("/api/notifications");
       await fetchData();
 
-      if (typeof window !== undefined) {
+      if (typeof window !== "undefined") {
         localStorage.removeItem("unreadNotificationsCount");
       }
     } catch (err) {
@@ -73,15 +73,18 @@ export const useNotificationsActions = () => {
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-  if (unreadCount) {
-    localStorage.setItem(
-      "unreadNotificationsCount",
-      JSON.stringify({
-        userId: user?._id,
-        counts: unreadCount,
-      })
-    );
+  if (typeof window !== 'undefined') {
+    if (unreadCount && user?._id) {
+      localStorage.setItem(
+        "unreadNotificationsCount",
+        JSON.stringify({
+          userId: user._id,
+          counts: unreadCount,
+        })
+      );
+    }
   }
+  
   return {
     unreadCount,
     notifications,
