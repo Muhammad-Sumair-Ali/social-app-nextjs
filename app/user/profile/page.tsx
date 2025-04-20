@@ -22,13 +22,11 @@ export default function Profile() {
     }
   }, [user?._id]);
   
-
-
   if (!user) {
-     return <LoginFirst />;
+    return <LoginFirst />;
   }
 
-  if (!isLoading) {
+  if (isLoading) {
     return <ProfileSkeleton />;
   }
 

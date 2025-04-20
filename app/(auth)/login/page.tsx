@@ -8,12 +8,16 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import MainLayout from "@/app/layout/MainLayout"
 
 export default function Login() {
   const { email, setEmail, password, setPassword, isLoading, handleLogin, handleSocialLogin ,showPassword,setShowPassword} = useAuthentication()
 
 
   return (
+    <MainLayout>
+
+
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       <div className="absolute inset-0 bg-grid-slate-200 dark:bg-grid-slate-800 [mask-image:linear-gradient(to_bottom,white,transparent)] pointer-events-none" />
 
@@ -134,5 +138,6 @@ export default function Login() {
         </CardFooter>
       </Card>
     </div>
+    </MainLayout>
   )
 }

@@ -5,7 +5,7 @@ import { useToast } from "@/components/reuseable/Toast";
 import { getFirstNameFromEmail } from "@/lib/helpers";
 import { PostCardData, PostCardProps } from "@/lib/types";
 import axios from "axios";
-import { useCallback, useState } from "react";
+import {  useState } from "react";
 
 export const usePostsActions = ({ post }: PostCardProps) => {
   const { user } = useAuth();
@@ -182,18 +182,12 @@ export const useFetchPosts = () => {
   const [posts, setPosts] = useState<PostCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+
 
   const handleFetchPosts = async () => {
     try {
-      const response = await axios.get(`/api/posts?page=${page}&limit=8`);
+      const response = await axios.get("/api/posts");
       const newPosts = response.data.posts;
-
-      if (newPosts.length === 0) {
-        setHasMore(false);
-        return;
-      }
 
       setPosts((prevPosts) => {
         const combined = [...prevPosts, ...newPosts];
@@ -213,41 +207,19 @@ export const useFetchPosts = () => {
     }
   };
   const refetchPosts = async () => {
-    setPage(1); 
     setPosts([]); 
     await handleFetchPosts(); 
   };
   
-  const handleInfiniteScroll = useCallback(() => {
-    try {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
-      const windowHeight = window.innerHeight;
-      const scrollHeight = document.documentElement.scrollHeight;
-  
-      if (
-        scrollTop + windowHeight + 100 >= scrollHeight &&
-        hasMore &&
-        !loading
-      ) {
-        setLoading(true);
-        setPage((prev) => prev + 1);
-      }
-    } catch (error) {
-      console.error("Error in infinite scroll:", error);
-    }
-  }, [hasMore, loading]);
+
   
 
   return {
     refetchPosts,
     setLoading,
-    setPage,
-    page,
-    hasMore,
     posts,
     loading,
     error,
-    handleInfiniteScroll,
     handleFetchPosts,
   };
 };

@@ -6,19 +6,13 @@ import { extractPublicId } from "@/lib/helpers";
 
 
 // Get all Posts
-export async function GET(request: NextRequest) {
+export async function GET() {
   await connectDatabase();
   try {
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") ?? "1") || 1;
-    const limit = parseInt(searchParams.get("limit") ?? "6") || 6;
-    const skip = (page - 1) * limit;
 
 
     const posts = await Post.find()
       .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
       .populate("likes", "fullName image")
       .lean(); 
 
@@ -41,7 +35,6 @@ export async function DELETE(req: NextRequest) {
   try {
     const { postId } = await req.json();
     
-    // Find the post
     const post = await Post.findById(postId);
     if (!post) {
       return NextResponse.json({ message: "Post not found" }, { status: 404 });

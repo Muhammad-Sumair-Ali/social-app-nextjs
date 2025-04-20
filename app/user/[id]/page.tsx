@@ -7,7 +7,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfilePostCard } from "@/components/post/ProfilePostsCard";
 import { ProfileSkeleton } from "@/components/panel/UserProfileSkeleton";
 import { IUser } from "@/lib/types";
-import LoginFirst from "@/components/panel/LoginFirst";
 import { useUserDataActions } from "@/hooks/useUserDataActions";
 
 export default function Profile() {
@@ -29,7 +28,7 @@ export default function Profile() {
     fetchUser();
   }, [id]);
 
-  const { fetchUserPosts, isLoading, userPosts } = useUserDataActions();
+  const { fetchUserPosts, userPosts } = useUserDataActions();
 
   useEffect(() => {
     if (user) {
@@ -40,10 +39,6 @@ export default function Profile() {
 
 
   if (!user) {
-     return <LoginFirst />;
-  }
-
-  if (!isLoading) {
     return <ProfileSkeleton />;
   }
 
@@ -117,12 +112,6 @@ export default function Profile() {
               className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-black data-[state=active]:rounded-none data-[state=active]:shadow-none"
             >
               Liked
-            </TabsTrigger>
-            <TabsTrigger
-              value="saved"
-              className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-black data-[state=active]:rounded-none data-[state=active]:shadow-none"
-            >
-              Saved
             </TabsTrigger>
           </TabsList>
         </div>

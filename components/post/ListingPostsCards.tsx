@@ -5,30 +5,11 @@ import { useFetchPosts } from "@/hooks/usePostsActions";
 import SuggestUsersMobile from "../common/SuggestUserMobile";
 
 const ListingPostsCards: React.FC = () => {
-  const {
-    posts,
-    loading,
-    hasMore,
-    error,
-    page,
-    handleInfiniteScroll,
-    handleFetchPosts,
-  } = useFetchPosts();
+  const { posts, loading, error, handleFetchPosts } = useFetchPosts();
 
   useEffect(() => {
     handleFetchPosts();
   }, []);
-  useEffect(() => {
-    if (page > 1 && hasMore) {
-      handleFetchPosts();
-    }
-  }, [page, hasMore]);
-  useEffect(() => {
-    window.addEventListener("scroll", handleInfiniteScroll);
-    return () => {
-      window.removeEventListener("scroll", handleInfiniteScroll);
-    };
-  }, [handleInfiniteScroll]);
 
   if (error) {
     console.error("Error fetching posts:", error);

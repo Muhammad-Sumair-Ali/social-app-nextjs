@@ -1,9 +1,11 @@
+
 "use client"
 
 import type * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Home, Search, Bell, User } from "lucide-react"
+import { useAuth } from "@/app/context/useAuth"
 
 import { cn } from "@/lib/utils"
 
@@ -11,6 +13,7 @@ interface NavItem {
   icon: React.ElementType
   label: string
   href: string
+  requiresAuth?: boolean
 }
 
 const defaultItems: NavItem[] = [
@@ -18,21 +21,25 @@ const defaultItems: NavItem[] = [
     icon: Home,
     label: "Home",
     href: "/",
+    requiresAuth: false
   },
   {
     icon: Search,
     label: "Explore",
     href: "/explore",
+    requiresAuth: true
   },
   {
     icon: Bell,
     label: "Notifications",
     href: "/user/notifications",
+    requiresAuth: true
   },
   {
     icon: User,
     label: "Profile",
     href: "/user/profile",
+    requiresAuth: false 
   },
 ]
 
@@ -43,6 +50,7 @@ interface MobileNavProps {
 
 export function MobileNav({ items = defaultItems, className }: MobileNavProps) {
   const pathname = usePathname()
+  const { user } = useAuth()
 
   return (
     <div className={cn("fixed bottom-0 left-0 z-50 w-full border-t bg-background md:hidden", className)}>
@@ -50,11 +58,13 @@ export function MobileNav({ items = defaultItems, className }: MobileNavProps) {
         {items.map((item) => {
           const isActive = pathname === item.href
           const Icon = item.icon
+          
+          const actualHref = (!user && item.requiresAuth) ? "/login" : item.href
 
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={actualHref}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 text-muted-foreground transition-colors",
                 isActive && "text-primary",
@@ -69,4 +79,3 @@ export function MobileNav({ items = defaultItems, className }: MobileNavProps) {
     </div>
   )
 }
-

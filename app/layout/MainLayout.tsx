@@ -5,14 +5,12 @@ import Header from "@/components/common/Header";
 import Sidebar from "@/components/common/Sidebar";
 import UsersSuggestSidebar from "@/components/common/UsersSuggestSidebar";
 import { MobileNav } from "@/components/common/MobileNavbar";
-import { useFetchPosts } from "@/hooks/usePostsActions";
 
 export default function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { loading, hasMore, setPage, setLoading } = useFetchPosts();
 
   useEffect(() => {
     const lenis = new Lenis();
@@ -24,33 +22,6 @@ export default function MainLayout({
     requestAnimationFrame(raf);
   }, []);
   const mainRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const el = mainRef.current;
-      if (!el) return;
-
-      const scrollTop = el.scrollTop;
-      const clientHeight = el.clientHeight;
-      const scrollHeight = el.scrollHeight;
-
-      if (
-        scrollTop + clientHeight + 100 >= scrollHeight &&
-        hasMore &&
-        !loading
-      ) {
-        setLoading(true);
-        setPage((prev) => prev + 1);
-      }
-    };
-
-    const el = mainRef.current;
-    if (el) el.addEventListener("scroll", handleScroll);
-
-    return () => {
-      if (el) el.removeEventListener("scroll", handleScroll);
-    };
-  }, [hasMore, loading]);
 
   return (
     <>

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuthentication } from "@/hooks/useAuthentication"
+import MainLayout from "@/app/layout/MainLayout"
 
 export default function Register() {
   const {
@@ -27,6 +28,8 @@ export default function Register() {
   } = useAuthentication()
 
   return (
+    <MainLayout>
+
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-background to-muted/50">
       <Card className="w-full max-w-md shadow-lg border-0">
         <CardHeader className="space-y-1 pb-2">
@@ -208,5 +211,7 @@ export default function Register() {
         </CardFooter>
       </Card>
     </div>
+    </MainLayout>
+
   )
 }

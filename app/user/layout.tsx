@@ -1,4 +1,5 @@
 import Header from "@/components/common/Header";
+import { MobileNav } from "@/components/common/MobileNavbar";
 import Sidebar from "@/components/common/Sidebar";
 
 export default function UserLayout({
@@ -15,6 +16,10 @@ export default function UserLayout({
         <main className="flex-1 p-2 py-6  min-h-screen bg-white overflow-y-auto">
           <div className=" mx-auto">{children}</div>
         </main>
+      </div>
+
+      <div className="block  md:hidden">
+        <MobileNav />
       </div>
     </>
   );

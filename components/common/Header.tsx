@@ -42,7 +42,7 @@ export default function Header() {
             prefetch={true}
             onClick={() => showNotification("Welcome to ReelsPro PK", "info")}
           >
-            <div className="bg-gradient-to-r from-pink-500 to-rose-500 p-1.5 rounded-md text-white">
+            <div className="bg-gradient-to-r from-zinc-800 to-gray-500 p-1.5 rounded-md text-white">
               <Home className="w-5 h-5" />
             </div>
             <span className="hidden sm:inline">ReelsPro Pakistani</span>
@@ -59,7 +59,7 @@ export default function Header() {
               />
             </div>
 
-            <Link href="/user/upload">
+            <Link href={ user ? "/user/upload" : "/login"}>
               <Button
                 variant="outline"
                 size="sm"

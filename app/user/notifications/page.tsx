@@ -22,6 +22,7 @@ import Image from "next/image";
 import NotificationsLoadingSkeleton from "@/components/panel/NotificationsSkeleton";
 
 const Notifications = () => {
+
   const {
     notifications,
     loading,
@@ -43,7 +44,7 @@ const Notifications = () => {
   });
 
   if (loading) {
-    return <NotificationsLoadingSkeleton/>
+    return <NotificationsLoadingSkeleton />;
   }
 
   return (
