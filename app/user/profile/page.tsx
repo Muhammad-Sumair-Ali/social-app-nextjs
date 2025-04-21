@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PencilLine, Settings, Share2 } from "lucide-react";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfilePostCard } from "@/components/post/ProfilePostsCard";
 import { ProfileSkeleton } from "@/components/panel/UserProfileSkeleton";

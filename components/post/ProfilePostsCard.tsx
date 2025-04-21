@@ -1,43 +1,33 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { X } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogOverlay,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
-import { PostCardProps } from "@/lib/types";
-import CustomVideoPlayer from "../CustomVideoPlayer";
-import Image from "next/image";
+import type React from "react"
+import { useState} from "react"
+import { Heart, MessageCircle} from "lucide-react"
+import type { PostCardProps } from "@/lib/types"
+import CustomVideoPlayer from "../CustomVideoPlayer"
+import Image from "next/image"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { formatDistanceToNow } from "date-fns"
+
 
 export function ProfilePostCard({ post }: PostCardProps) {
-  const [open, setOpen] = useState(false);
-
-  const handlePostClick = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
+  const [isHovering, setIsHovering] = useState(false)
 
   return (
     <>
       <div
-        className="aspect-auto overflow-hidden relative  cursor-pointer"
-        onClick={handlePostClick}
+        className="aspect-auto overflow-hidden h-[auto] w-[170px] md:w-[240px] relative cursor-pointer rounded-xl group bg-black/5 dark:bg-white/5 transition-all duration-300 shadow-xl"
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
       >
         {post.mediaType === "image" ? (
           <Image
-            width={200}
-            height={200}
+            width={400}
+            height={400}
             priority
-            src={post.mediaUrl}
+            src={post.mediaUrl || ""}
             alt={post.caption}
-            className="w-full h-full object-cover"
+            className="w-full h-96 object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
         ) : (
           <div className="w-full h-full bg-muted flex items-center justify-center relative">
@@ -45,82 +35,46 @@ export function ProfilePostCard({ post }: PostCardProps) {
               src={post.mediaUrl}
               width="100%"
               height="100%"
-              className="object-contain"
-              autoPlay={false}
-              loop={true}
-              muted={false}
+              className="object-cover"
+              autoPlay={isHovering} 
+              muted
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-10 h-10 bg-black/50 rounded-full flex items-center justify-center">
-                <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1"></div>
+              <div className="w-12 h-12 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[12px] border-l-white border-b-[8px] border-b-transparent ml-1"></div>
               </div>
             </div>
           </div>
         )}
+
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent  group-hover:opacity-0 opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+          <div className="flex items-center gap-3 mb-3">
+            <Avatar className="h-7 w-7 border-2 border-white">
+              <AvatarImage src={post.user.image || ""} alt={post.user.fullName || post.user.email} />
+              <AvatarFallback>{(post.user.fullName?.[0] || post.user.email?.[0] || "U").toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <p className="font-medium text-sm text-white">{post.user.fullName || post.user.name}</p>
+          </div>
+          <div className="flex items-center justify-between text-white">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1.5">
+                <Heart className={"w-5 h-5 fill-white"} />
+                <span className="text-sm font-medium">{post.likes.length}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <MessageCircle className="w-5 h-5 fill-white/10" />
+                <span className="text-sm font-medium">{post.comments?.length || 0}</span>
+              </div>
+            </div>
+            <span className="text-xs opacity-80">
+              {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+            </span>
+          </div>
+        </div>
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogOverlay className="bg-black/80" />
-        <DialogContent className="max-w-7xl p-0 border-none bg-transparent shadow-none">
-          <DialogTitle className="sr-only">post detals</DialogTitle>
-          <div className="flex flex-col md:flex-row bg-background rounded-lg overflow-hidden">
-            <div
-              className={cn(
-                "relative w-full md:w-2/3 aspect-square md:aspect-auto",
-                post.mediaType === "video" ? "bg-black" : ""
-              )}
-            >
-              {post.mediaType === "image" ? (
-                <Image
-                  priority
-                  src={post.mediaUrl || ""}
-                  alt={post.caption}
-                  className="w-full h-full object-contain"
-                />
-              ) : (
-                <CustomVideoPlayer
-                  src={post.mediaUrl}
-                  width="100%"
-                  height="100%"
-                  className="object-contain"
-                  autoPlay={false}
-                  loop={true}
-                  muted={false}
-                />
-              )}
-            </div>
-            <div className="w-full md:w-1/3 p-4 overflow-y-auto max-h-[300px] md:max-h-[500px]">
-              <div className="flex items-center mb-4">
-                <div className="h-10 w-10 rounded-full overflow-hidden mr-3">
-                  <Image
-                    src={post?.user?.image || ""} 
-                    alt={post.user.fullName || post.user.email}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div>
-                  <p className="font-medium">
-                    {post.user.fullName || post.user.name}
-                  </p>
-                </div>
-              </div>
-              <p className="text-sm mb-4">{post.caption}</p>
-              <div className="text-xs text-muted-foreground mb-2">
-                {post.likes.length} {post.likes.length === 1 ? "like" : "likes"}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {new Date(post.createdAt).toLocaleDateString()}
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={handleClose}
-            className="absolute top-2 right-2 w-8 h-8 rounded-full bg-background/80 flex items-center justify-center"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </DialogContent>
-      </Dialog>
+     
     </>
-  );
+  )
 }

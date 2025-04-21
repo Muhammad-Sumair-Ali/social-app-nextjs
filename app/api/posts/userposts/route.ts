@@ -1,7 +1,5 @@
 
 import mongoose from 'mongoose';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/authOptions';
 import { connectDatabase } from '@/lib/db';
 import Post from '@/models/Post';
 import User from '@/models/Users';
@@ -11,10 +9,6 @@ export async function POST(request: NextRequest) {
   try {
     const { userId: currentUserId } = await request.json();
 
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
 
     await connectDatabase();
 

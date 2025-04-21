@@ -116,9 +116,9 @@ export default function Profile() {
           </TabsList>
         </div>
 
-        <TabsContent value="posts" className="max-w-4xl mx-auto px-4 mt-6">
+        <TabsContent value="posts" className="w-full md:w-4xl mx-auto  md:px-4 mt-2 border py-6 ">
           {userPosts?.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+            <div className="relative grid  grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-x-1 md:gap-4">
               {userPosts?.map((post, index) => (
                 <ProfilePostCard key={index} post={post} />
               ))}

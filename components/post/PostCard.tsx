@@ -1,4 +1,3 @@
-
 "use client";
 
 import type React from "react";
@@ -42,6 +41,8 @@ import { formatDateIntoAgoTimes, getFirstNameFromEmail } from "@/lib/helpers";
 import type { PostCardProps } from "@/lib/types";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { LoginRequiredModal } from "../reuseable/LoginRequiredModal";
+import { useAuth } from "@/app/context/useAuth";
 
 const shareLinks = [
   { id: "copy", icon: Copy, label: "Copy link" },
@@ -73,39 +74,53 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const [mediaLoaded, setMediaLoaded] = useState(false);
   const [mediaOrientation, setMediaOrientation] = useState("landscape");
   const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user } = useAuth();
 
   // Check screen size on mount and resize
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsLargeScreen(window.innerWidth >= 768); 
+      setIsLargeScreen(window.innerWidth >= 768);
     };
-    
+
     checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    
+    window.addEventListener("resize", checkScreenSize);
+
     return () => {
-      window.removeEventListener('resize', checkScreenSize);
+      window.removeEventListener("resize", checkScreenSize);
     };
   }, []);
 
   const deletePost = async (postId: string) => {
-    if(!postId) return new Error("Post Id Is required");
+    if (!postId) return new Error("Post Id Is required");
     await handleDeletepost(postId);
     refetchPosts();
   };
 
   // Check media orientation when it loads
-  const handleMediaLoad = (e: React.SyntheticEvent<HTMLImageElement | HTMLVideoElement>) => {
+  const handleMediaLoad = (
+    e: React.SyntheticEvent<HTMLImageElement | HTMLVideoElement>
+  ) => {
     const element = e.currentTarget;
-    const width = element instanceof HTMLImageElement ? element.naturalWidth : element instanceof HTMLVideoElement ? element.videoWidth : 0;
-    const height = element instanceof HTMLImageElement ? element.naturalHeight : element instanceof HTMLVideoElement ? element.videoHeight : 0;
-    
+    const width =
+      element instanceof HTMLImageElement
+        ? element.naturalWidth
+        : element instanceof HTMLVideoElement
+        ? element.videoWidth
+        : 0;
+    const height =
+      element instanceof HTMLImageElement
+        ? element.naturalHeight
+        : element instanceof HTMLVideoElement
+        ? element.videoHeight
+        : 0;
+
     if (height > width) {
       setMediaOrientation("portrait");
     } else {
       setMediaOrientation("landscape");
     }
-    
+
     setMediaLoaded(true);
   };
 
@@ -142,9 +157,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           <div className="flex items-center gap-2">
             {!isOwnPost && (
               <Button
-                onClick={async () => {
-                  await handleFollow();
-                }}
+                onClick={async () => (user ? handleFollow() : setIsModalOpen(true))}
                 variant={isFollowing ? "outline" : "default"}
                 size="sm"
                 className="rounded-full shadow cursor-pointer text-xs px-3 h-8"
@@ -226,7 +239,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               width={500}
               height={400}
               unoptimized
-              onLoad={isLargeScreen ? handleMediaLoad as any : undefined}
+              onLoad={isLargeScreen ? (handleMediaLoad as any) : undefined}
               className={
                 isLargeScreen
                   ? `${
@@ -242,7 +255,9 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               src={post.mediaUrl}
               width="100%"
               height="100%"
-              onLoadedMetadata={isLargeScreen ? handleMediaLoad as any : undefined}
+              onLoadedMetadata={
+                isLargeScreen ? (handleMediaLoad as any) : undefined
+              }
               className={
                 isLargeScreen
                   ? `${
@@ -262,9 +277,16 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
       <CardFooter className="px-4 py-3 flex justify-between border-t border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-6 -mt-6">
+          <div className="sr-only">
+            <LoginRequiredModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+            />
+          </div>
+
           {/* Like Button */}
           <Button
-            onClick={handleLike}
+            onClick={() => (user ? handleLike() : setIsModalOpen(true))}
             variant="ghost"
             size="lg"
             className={`group border relative flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 ${
@@ -358,7 +380,17 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               )}
             </div>
 
-            <form onSubmit={handleComment} className="mt-3 flex gap-2">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault(); 
+                if (user) {
+                  handleComment(e);
+                } else {
+                  setIsModalOpen(true);
+                }
+              }}
+              className="mt-3 flex gap-2"
+            >
               <input
                 type="text"
                 value={commentText}
