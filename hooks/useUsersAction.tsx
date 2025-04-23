@@ -1,37 +1,19 @@
 "use client";
-import { useToast } from "@/components/reuseable/Toast";
-import { getFirstNameFromEmail } from "@/lib/helpers";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export const useUsersActions = () => {
-  const { toast } = useToast();
-
   const handleFollow = async (propUser?: any) => {
     try {
       const response = await axios.post("/api/posts/follow", {
         userId: propUser?._id,
       });
-      toast({
-        title: response.data.following ? "Following" : "Unfollowed",
-        description: response.data.following
-          ? `You are now following ${
-              propUser?.fullName || getFirstNameFromEmail(propUser?.email)
-            }`
-          : `You unfollowed ${
-              propUser?.fullName || getFirstNameFromEmail(propUser?.email)
-            }`,
-      });
+      toast.success(response.data.following ? "Following" : "Unfollowed");
     } catch (error) {
       console.error("Error following user:", error);
-      toast({
-        title: "Error",
-        description: "Could not follow user. Please try again.",
-        variant: "destructive",
-      });
+      toast("Could not follow/unFollow user. Please try again.");
     }
   };
-
-
 
   return {
     handleFollow,

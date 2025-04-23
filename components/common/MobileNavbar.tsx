@@ -32,13 +32,13 @@ const defaultItems: NavItem[] = [
   {
     icon: Bell,
     label: "Notifications",
-    href: "/user/notifications",
+    href: "/notifications",
     requiresAuth: true
   },
   {
     icon: User,
     label: "Profile",
-    href: "/user/profile",
+    href: "/profile",
     requiresAuth: false 
   },
 ]

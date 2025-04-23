@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 import { connectDatabase } from "@/lib/db";
 import Post from "@/models/Post";
-import User from "@/models/Users";
+import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from 'cloudinary';
 

@@ -1,15 +1,13 @@
 "use client";
 
 import { useAuth } from "@/app/context/useAuth";
-import { useToast } from "@/components/reuseable/Toast";
-import { getFirstNameFromEmail } from "@/lib/helpers";
 import { PostCardData, PostCardProps } from "@/lib/types";
 import axios from "axios";
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 export const usePostsActions = ({ post }: PostCardProps) => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const [liked, setLiked] = useState(
     post?.likes.some((postUser: any) => postUser._id === user?._id?.toString())
   );
@@ -21,11 +19,23 @@ export const usePostsActions = ({ post }: PostCardProps) => {
   const [comments, setComments] = useState(post?.comments);
   const [saved, setSaved] = useState(false);
 
-  const [isFollowing, setIsFollowing] = useState(
-    post?.user.following
-      ?.map((id) => id)
-      .some((id: any) => id.toString() === user?._id?.toString()) ?? false
-  );
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  useEffect(() => {
+    const checkFollowing = () => {
+      const followingIds = Array.isArray(user?.following)
+        ? user.following.map((id: any) => id.toString())
+        : [];
+      const postUserId = post.user?._id?.toString();
+
+      setIsFollowing(followingIds.includes(postUserId));
+    };
+
+    checkFollowing();
+  }, [user, post]);
+
+
+
 
     const handleDeletepost = async (postId: string) => {
       if (!postId) return;
@@ -35,9 +45,10 @@ export const usePostsActions = ({ post }: PostCardProps) => {
             id: postId,
           },
         });
-        alert("post deleted")
+        toast.success("Post deleted successfully!");
       } catch (error) {
         console.error("Error delete Post", error);
+        toast.error("Could not delete post. Please try again.");
       }
     };
     
@@ -49,13 +60,10 @@ export const usePostsActions = ({ post }: PostCardProps) => {
       });
       setLiked(response.data.liked);
       setLikesCount((prev) => (response.data.liked ? prev + 1 : prev - 1));
+      toast.success("Post Liked")
     } catch (error) {
       console.error("Error liking post:", error);
-      toast({
-        title: "Error",
-        description: "Could not like post. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Could not like post. Please try again.");
     }
   };
 
@@ -80,13 +88,10 @@ export const usePostsActions = ({ post }: PostCardProps) => {
         ]);
         setCommentText("");
       }
+      toast.success("Comment added successfully!");
     } catch (error) {
       console.error("Error adding comment:", error);
-      toast({
-        title: "Error",
-        description: "Could not add comment. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Could not add comment. Please try again.");
     }
   };
 
@@ -96,34 +101,16 @@ export const usePostsActions = ({ post }: PostCardProps) => {
         userId: post.user._id,
       });
       setIsFollowing(response.data.following);
-      toast({
-        title: response.data.following ? "Following" : "Unfollowed",
-        description: response.data.following
-          ? `You are now following ${
-              post.user.name || getFirstNameFromEmail(post.user.email)
-            }`
-          : `You unfollowed ${
-              post.user.name || getFirstNameFromEmail(post.user.email)
-            }`,
-      });
+      toast.success(response.data.following ? "Following" : "Unfollowed",);
     } catch (error) {
       console.error("Error following user:", error);
-      toast({
-        title: "Error",
-        description: "Could not follow user. Please try again.",
-        variant: "destructive",
-      });
+      toast("Could not follow user. Please try again");
     }
   };
 
   const handleSave = () => {
     setSaved(!saved);
-    toast({
-      title: saved ? "Removed from saved" : "Saved",
-      description: saved
-        ? "Post removed from your saved items"
-        : "Post added to your saved items",
-    });
+    toast("Post saved successfully!");
   };
 
   const handleShare = (platform: string) => {
@@ -146,10 +133,7 @@ export const usePostsActions = ({ post }: PostCardProps) => {
         break;
       case "copy":
         navigator.clipboard.writeText(postUrl);
-        toast({
-          title: "Link copied",
-          description: "Post link copied to clipboard",
-        });
+        toast.success("Post URL copied to clipboard!");
         break;
       default:
         break;

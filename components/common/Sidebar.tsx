@@ -43,7 +43,7 @@ export default function Sidebar() {
           <div className="mb-6">
             {user ? (
               <Link
-                href="/user/upload"
+                href="/upload"
                 className="block"
               >
                 <div className="w-full flex items-center gap-3 px-4 py-2 rounded-md text-white bg-gradient-to-r from-slate-700 to-zinc-800 hover:opacity-90 transition">

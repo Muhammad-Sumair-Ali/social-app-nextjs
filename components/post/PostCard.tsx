@@ -129,7 +129,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       <CardHeader className="px-4 pt-1 -mt-4 space-y-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Link href={`/user/${post.user._id}`}>
+            <Link href={`/${post.user._id}`}>
               <Avatar className="h-12 w-12 lg:w-14 shadow-lg lg:h-14 border border-gray-200 dark:border-gray-700">
                 <AvatarImage
                   src={post?.user.image || ""}
@@ -155,14 +155,14 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {!isOwnPost && (
+            {isOwnPost && (
               <Button
                 onClick={async () => (user ? handleFollow() : setIsModalOpen(true))}
                 variant={isFollowing ? "outline" : "default"}
                 size="sm"
                 className="rounded-full shadow cursor-pointer text-xs px-3 h-8"
               >
-                {!isFollowing ? (
+                {isFollowing ? (
                   <>
                     <UserCheck className="h-4 w-4 mr-1" />
                     Following

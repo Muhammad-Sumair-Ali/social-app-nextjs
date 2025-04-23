@@ -48,21 +48,21 @@ export const NAV_LINKS: NavLink[] = [
     redirectIfNoAuth: "/login"
   },
   {
-    href: "/user/notifications",
+    href: "/notifications",
     label: "Notifications",
     icon: <Bell className="w-6 h-6" />,
     requiresAuth: true,
     redirectIfNoAuth: "/login"
   },
   {
-    href: "/messages",
+    href: "/chat-home",
     label: "Messages",
     icon: <Bell className="w-6 h-6" />,
     requiresAuth: true,
     redirectIfNoAuth: "/login"
   },
   {
-    href: "/user/profile",
+    href: "/profile",
     label: "Profile",
     icon: <User className="w-6 h-6" />,
     requiresAuth: false 

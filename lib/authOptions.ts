@@ -1,7 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { connectDatabase } from "./db";
-import User from "@/models/Users";
+import User from "@/models/User";
 import bcrypt from "bcryptjs";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
@@ -83,9 +83,10 @@ export const authOptions: NextAuthOptions = {
               email: user.email,
               fullName: profile?.name || user.name || `User_${Date.now().toString().slice(-5)}`,
               password: hashedPassword,
-              image: user.image || "/default-avatar.png",
+              image: user.image || "",
               emailVerified: new Date(),
-              provider: account.provider
+              provider: account.provider,
+              follower: []
             });
             
             await newUser.save();

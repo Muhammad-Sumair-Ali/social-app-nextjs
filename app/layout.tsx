@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/reuseable/Provider";
-
+import { Toaster } from 'react-hot-toast';
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -24,6 +24,7 @@ export default function RootLayout({
       <body
         className={`${nunito.className} antialiased`}
       >
+        <Toaster position="top-right" />  
         <Providers>
           {children}
         </Providers>

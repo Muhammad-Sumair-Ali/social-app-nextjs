@@ -7,7 +7,6 @@ import { useUsersActions } from "@/hooks/useUsersAction";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
 import { UserPlus, RefreshCw, Users } from "lucide-react";
 import { useSuggestedUsers } from "@/app/context/suggestingUsersContext";
 import type { IUser } from "@/lib/types";
@@ -92,9 +91,7 @@ const UsersSuggestSidebar = () => {
           </div>
         ) : filterUsers?.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-3 text-center space-y-2">
-            <Badge variant="outline" className="px-3 py-1">
-              All caught up!
-            </Badge>
+           
             <p className="text-sm text-muted-foreground">
               You&#39;re following all suggested users
             </p>
@@ -118,7 +115,7 @@ const UsersSuggestSidebar = () => {
                 transition={{ duration: 0.2, delay: index * 0.05 }}
                 className="flex items-center gap-3 p-2 rounded-xl hover:bg-accent/40 transition-all"
               >
-                <Link href={`/user/${account._id}`} className="shrink-0">
+                <Link href={`/${account._id}`} className="shrink-0">
                   <Avatar className="h-12 w-12 border border-border shadow-sm transition-transform hover:scale-105">
                     <AvatarImage src={account.image} alt={account.fullName} />
                     <AvatarFallback fallbackKey={account.email}>
@@ -129,7 +126,7 @@ const UsersSuggestSidebar = () => {
 
                 <div className="flex flex-col min-w-0">
                   <Link
-                    href={`/user/${account._id}`}
+                    href={`/${account._id}`}
                     className="hover:underline"
                   >
                     <span className="text-sm font-medium truncate block">

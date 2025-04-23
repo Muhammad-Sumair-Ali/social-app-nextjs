@@ -101,6 +101,11 @@ export interface IUser {
         ref: 'User',
         default: object[]
       }
+    followers?: {
+        type: [Schema.Types.ObjectId],
+        ref: 'User',
+        default: object[]
+      }
     likes:{
       type :number
     }  
@@ -127,4 +132,23 @@ export interface INotification {
   }
   isRead: boolean;
   createdAt: Date;
+}
+
+
+export interface IMessages {
+  _id?: Types.ObjectId;
+  sender:{
+      _id: Types.ObjectId,
+      fullName?: string,
+      email: string,
+      image?: string,
+    };
+  receiver: {
+    _id: Types.ObjectId,
+    fullName?: string,
+    email: string,
+    image?: string,
+  };
+  text: string;
+  timestamp: Date;
 }

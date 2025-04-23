@@ -4,7 +4,7 @@ import { connectDatabase } from "@/lib/db";
 import Post from "@/models/Post";
 import { NextRequest, NextResponse } from "next/server";
 import { createNotification } from "@/lib/createNotification";
-import User from "@/models/Users";
+import User from "@/models/User";
 import { getTotalLikesOfUser } from "@/lib/getUserLikes";
 
 export async function POST(req: NextRequest) {

@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/authOptions';
 import { connectDatabase } from '@/lib/db';
-import User from '@/models/Users';
+import User from '@/models/User';
 import { createNotification } from '@/lib/createNotification';
 import { NextRequest, NextResponse } from 'next/server';
 

@@ -86,7 +86,7 @@ const SuggestUsersMobile = () => {
 
                 <div className="flex flex-row gap-2 justify-between items-center">
                 <div className=" w-full flex justify-center">
-                  <Link href={`/user/${account._id}`} className="block -ml-4">
+                  <Link href={`/${account._id}`} className="block -ml-4">
                     <Avatar className="h-20 w-20 border-4 border-background shadow-md hover:scale-105 transition-transform duration-300">
                       <AvatarImage
                         src={account.image || ""}
@@ -101,7 +101,7 @@ const SuggestUsersMobile = () => {
                 </div>
 
                 <div className=" text-center w-full">
-                  <Link href={`/user/${account._id}`} className="hover:underline inline-block">
+                  <Link href={`/${account._id}`} className="hover:underline inline-block">
                     <h4 className="font-semibold text-lg">{account.fullName}</h4>
                   </Link>
                   <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">@{account.email?.split("@")[0]}</p>

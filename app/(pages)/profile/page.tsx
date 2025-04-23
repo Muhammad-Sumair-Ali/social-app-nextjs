@@ -86,7 +86,7 @@ export default function Profile() {
             {/* Action Buttons */}
             <div className="flex gap-2 mt-2 md:mt-0">
               <button
-                onClick={() => router.push("/user/settings")}
+                onClick={() => router.push("/settings")}
                 className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-md font-medium text-sm flex items-center gap-1"
               >
                 <PencilLine size={16} />

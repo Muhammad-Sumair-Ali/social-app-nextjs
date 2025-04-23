@@ -83,6 +83,12 @@ export default function Profile() {
                   </div>
                   <div className="text-sm text-gray-500">Following</div>
                 </div>
+                <div className="text-center cursor-pointer">
+                  <div className="font-bold">
+                    {Array.isArray(user?.followers) ? user.followers.length : 0}
+                  </div>
+                  <div className="text-sm text-gray-500">Followers</div>
+                </div>
 
                 <div className="text-center cursor-pointer">
                   <div className="font-bold">{Number(user?.likes) || 0}</div>

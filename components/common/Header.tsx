@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { Home, Search, Plus, LogOut, Menu, X, User } from "lucide-react";
-import { useNotification } from "@/components/reuseable/Notification";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,18 +15,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/app/context/useAuth";
+import toast from "react-hot-toast";
 
 export default function Header() {
   const { user } = useAuth();
-  const { showNotification } = useNotification();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
       await signOut();
-      showNotification("Signed out successfully", "success");
+      toast.success("Signed out successfully");
     } catch {
-      showNotification("Failed to sign out", "error");
+      toast.error("Failed to sign out");
     }
   };
 
@@ -40,7 +39,7 @@ export default function Header() {
             href="/"
             className="flex items-center gap-2 font-bold text-xl"
             prefetch={true}
-            onClick={() => showNotification("Welcome to ReelsPro PK", "info")}
+            onClick={() => toast.custom("Welcome to ReelsPro PK")}
           >
             <div className="bg-gradient-to-r from-zinc-800 to-gray-500 p-1.5 rounded-md text-white">
               <Home className="w-5 h-5" />
@@ -59,7 +58,7 @@ export default function Header() {
               />
             </div>
 
-            <Link href={ user ? "/user/upload" : "/login"}>
+            <Link href={ user ? "/upload" : "/login"}>
               <Button
                 variant="outline"
                 size="sm"
@@ -96,7 +95,7 @@ export default function Header() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link
-                      href="/user/profile"
+                      href="/profile"
                       className="cursor-pointer flex items-center gap-2"
                     >
                       <User className="w-4 h-4" />
@@ -125,7 +124,7 @@ export default function Header() {
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center gap-3">
             {user?._id && (
-              <Link href="/user/upload">
+              <Link href="/upload">
                 <Button variant="outline" size="icon" className="rounded-full">
                   <Plus className="w-4 h-4" />
                 </Button>
@@ -182,11 +181,10 @@ export default function Header() {
                   </div>
                 </div>
                 <Link
-                  href="/user/profile"
+                  href="/profile"
                   className="flex items-center gap-2 p-2 hover:bg-muted rounded-md"
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    showNotification("Welcome to Admin Dashboard", "info");
                   }}
                 >
                   <User className="w-4 h-4" />
@@ -209,7 +207,6 @@ export default function Header() {
                 className="w-full"
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  showNotification("Please sign in to continue", "info");
                 }}
               >
                 <Button className="w-full rounded-full">Login</Button>

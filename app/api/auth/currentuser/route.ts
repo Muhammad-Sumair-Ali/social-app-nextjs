@@ -1,7 +1,7 @@
 import { authOptions } from "@/lib/authOptions";
 import { connectDatabase } from "@/lib/db";
 import { getTotalLikesOfUser } from "@/lib/getUserLikes";
-import User from "@/models/Users";
+import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
