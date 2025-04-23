@@ -16,17 +16,22 @@ export const useMessages = (currentUser: IUser | null, receiverId: string) => {
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
     }
-
+  
     pollingIntervalRef.current = setInterval(async () => {
       if (!currentUser?._id || !receiverId) return;
-      
+  
       try {
         const res = await axios.get(
           `/api/messages/get?sender=${currentUser._id}&receiver=${receiverId}&after=${lastMessageIdRef.current || ''}`
         );
-        
+  
         if (res.data && res.data.length > 0) {
-          setMessages(prev => [...prev, ...res.data]);
+          setMessages(prev => {
+            const existingIds = new Set(prev.map(msg => msg._id ? msg._id.toString() : ""));
+            const newMessages: IMessages[] = res.data.filter((msg: IMessages) => msg._id && !existingIds.has(msg._id.toString()));
+            return [...prev, ...newMessages];
+          });
+  
           lastMessageIdRef.current = res.data[res.data.length - 1]._id.toString();
         }
       } catch (err) {
@@ -34,6 +39,7 @@ export const useMessages = (currentUser: IUser | null, receiverId: string) => {
       }
     }, 8000);
   };
+  
 
   // Fetch all messages
   const fetchMessages = async () => {
@@ -43,10 +49,22 @@ export const useMessages = (currentUser: IUser | null, receiverId: string) => {
       const res = await axios.get(
         `/api/messages/get?sender=${currentUser._id}&receiver=${receiverId}`
       );
-      setMessages(res.data);
-      
-      if (res.data.length > 0) {
-        lastMessageIdRef.current = res.data[res.data.length - 1]._id.toString();
+  
+      if (res.data) {
+        // Ensure no duplicates in full load
+        const uniqueMessagesMap = new Map();
+        res.data.forEach((msg: IMessages) => {
+          if (msg._id) {
+            uniqueMessagesMap.set(msg._id.toString(), msg);
+          }
+        });
+  
+        const uniqueMessages = Array.from(uniqueMessagesMap.values());
+        setMessages(uniqueMessages);
+  
+        if (uniqueMessages.length > 0) {
+          lastMessageIdRef.current = uniqueMessages[uniqueMessages.length - 1]._id.toString();
+        }
       }
     } catch (err) {
       console.error("Error fetching messages:", err);
@@ -54,6 +72,7 @@ export const useMessages = (currentUser: IUser | null, receiverId: string) => {
       setLoading(false);
     }
   };
+  
 
   // Send a new message
   const sendMessage = async (text: string, receiverUser: IUser) => {

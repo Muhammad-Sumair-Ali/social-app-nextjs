@@ -4,7 +4,7 @@
 import type * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Search, Bell, User } from "lucide-react"
+import { Home, Bell, User, MessageCircle } from "lucide-react"
 import { useAuth } from "@/app/context/useAuth"
 
 import { cn } from "@/lib/utils"
@@ -24,9 +24,9 @@ const defaultItems: NavItem[] = [
     requiresAuth: false
   },
   {
-    icon: Search,
-    label: "Explore",
-    href: "/explore",
+    icon: MessageCircle,
+    label: "Messaages",
+    href: "/chat-home",
     requiresAuth: true
   },
   {

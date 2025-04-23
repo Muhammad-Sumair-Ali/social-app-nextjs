@@ -9,11 +9,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Send, RefreshCw, ArrowLeft, Smile, Paperclip } from "lucide-react";
+import { Send, RefreshCw, ArrowLeft, Paperclip } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMessages } from "@/hooks/useMessages";
 import { useReceiver } from "@/hooks/useReceiver";
 import { useMessageUI } from "@/hooks/useMessageUI";
+import ChatLayout from "@/app/layout/ChatLayout";
 
 export default function UserMessagesChat() {
   const { user: currentUser } = useAuth();
@@ -39,17 +40,19 @@ export default function UserMessagesChat() {
   };
 
   return (
-    <Card className="flex flex-col h-[calc(100vh-80px)] md:h-[85vh] rounded-lg shadow-md border bg-background overflow-hidden">
+    <ChatLayout>
+
+    <Card className="flex border-none rounded-none  flex-col h-[calc(100vh-90px)] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center p-3 border-b bg-white/90 backdrop-blur-sm sticky top-0 z-10 shadow-sm">
-        <Link href="/messages" className="mr-3">
-          <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 hover:bg-gray-100">
-            <ArrowLeft size={18} />
+      <div className="flex items-center  p-2 pb-3 border-b bg-white/90 backdrop-blur-sm sticky top-0 z-10">
+        <Link href="/chat-home" className="mr-1 -mt-4">
+          <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 hover:bg-gray-100">
+            <ArrowLeft size={22} />
           </Button>
         </Link>
         
-        <Link href={`/${receiverUser?._id}`} className="flex items-center flex-1 min-w-0">
-          <Avatar className="h-10 w-10 border shadow-sm mr-3">
+        <Link href={`/${receiverUser?._id}`} className="flex items-center  -mt-5 flex-1 min-w-0">
+          <Avatar className="h-12 w-12 border shadow-sm mr-3">
             <AvatarImage
               src={receiverUser?.image}
               alt={receiverUser?.fullName || "User"}
@@ -73,7 +76,7 @@ export default function UserMessagesChat() {
           onClick={fetchMessages} 
           variant="ghost" 
           size="icon" 
-          className="ml-auto rounded-full h-8 w-8 hover:bg-gray-100"
+          className="ml-auto rounded-full h-11 -mt-4  w-11 hover:bg-gray-100"
           disabled={loading}
           title="Refresh messages"
         >
@@ -82,7 +85,7 @@ export default function UserMessagesChat() {
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 -mt-6 overflow-y-auto p-4 space-y-6 bg-gradient-to-b from-slate-50 to-white">
+      <div className="flex-1 -mt-6 overflow-y-auto p-2 space-y-6 bg-gradient-to-b from-slate-50 to-white">
         {Object.keys(groupedMessages).length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
@@ -153,22 +156,14 @@ export default function UserMessagesChat() {
       </div>
 
       {/* Input area */}
-      <form onSubmit={handleSendMessage} className="p-3 border-t bg-white/90 backdrop-blur-sm">
+      <form onSubmit={handleSendMessage} className="p-3 border-t -mb-4 bg-white/80 backdrop-blur-sm">
         <div className="flex gap-2 items-center bg-gray-50 rounded-full px-3 border border-gray-100 focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/50">
-          <Button 
-            type="button"
-            variant="ghost" 
-            size="icon" 
-            className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-transparent"
-          >
-            <Smile size={20} />
-          </Button>
           
           <Button 
             type="button"
             variant="ghost" 
             size="icon" 
-            className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-transparent"
+            className="h-11 w-11 rounded-full text-muted-foreground hover:text-foreground hover:bg-transparent"
           >
             <Paperclip size={20} />
           </Button>
@@ -176,7 +171,7 @@ export default function UserMessagesChat() {
           <Input
             ref={inputRef}
             placeholder="Type a message..."
-            className="flex-1 h-11 border-0 bg-transparent focus-visible:ring-0 px-1"
+            className="flex-1 font-semibold h-12 border-0 bg-transparent focus-visible:ring-0 px-1"
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
@@ -190,7 +185,7 @@ export default function UserMessagesChat() {
           
           <Button 
             type="submit"
-            className="h-9 w-9 rounded-full p-0 flex items-center justify-center bg-primary hover:bg-primary/90 text-white"
+            className="h-11 w-11 rounded-full p-0 flex items-center justify-center bg-primary hover:bg-primary/90 text-white"
             disabled={!text.trim() || sending || !receiverUser}
           >
             <Send size={16} className={sending ? "animate-pulse" : ""} />
@@ -198,5 +193,7 @@ export default function UserMessagesChat() {
         </div>
       </form>
     </Card>
+    </ChatLayout>
+
   );
 }

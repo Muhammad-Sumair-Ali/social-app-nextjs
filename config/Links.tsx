@@ -1,11 +1,11 @@
 "use client"
 import {
   Home,
-  Compass,
   PlusSquare,
   User,
   TrendingUp,
   Bell,
+  MessageCircle,
 } from "lucide-react";
 import { JSX } from "react";
 
@@ -25,13 +25,6 @@ export const NAV_LINKS: NavLink[] = [
     label: "For You", 
     icon: <Home className="w-6 h-6" />,
     requiresAuth: false // Available to all users
-  },
-  {
-    href: "/explore",
-    label: "Explore",
-    icon: <Compass className="w-6 h-6" />,
-    requiresAuth: true,
-    redirectIfNoAuth: "/login"
   },
   {
     href: "/trending",
@@ -57,7 +50,7 @@ export const NAV_LINKS: NavLink[] = [
   {
     href: "/chat-home",
     label: "Messages",
-    icon: <Bell className="w-6 h-6" />,
+    icon: <MessageCircle className="w-6 h-6" />,
     requiresAuth: true,
     redirectIfNoAuth: "/login"
   },
