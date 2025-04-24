@@ -1,31 +1,28 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import axios from "axios";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfilePostCard } from "@/components/post/ProfilePostsCard";
 import { ProfileSkeleton } from "@/components/panel/UserProfileSkeleton";
 import { IUser } from "@/lib/types";
 import { useUserDataActions } from "@/hooks/useUserDataActions";
+import { useUsersActions } from "@/hooks/useUsersAction";
 
 export default function Profile() {
-
   const { id } = useParams();
   const [user, setUser] = useState<IUser | null>(null);
+  const { fetchUserById } = useUsersActions();
 
   useEffect(() => {
-    if(!id) return;
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get(`/api/auth/user/${id}`);
-        setUser(res.data);
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      }
-    };
-
-    fetchUser();
+    if (!id) return;
+    fetchUserById(id)
+      .then((userData) => {
+        setUser(userData);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch user data:", error);
+      });
   }, [id]);
 
   const { fetchUserPosts, userPosts } = useUserDataActions();
@@ -35,8 +32,6 @@ export default function Profile() {
       fetchUserPosts(user);
     }
   }, [user?._id]);
-  
-
 
   if (!user) {
     return <ProfileSkeleton />;
@@ -122,7 +117,10 @@ export default function Profile() {
           </TabsList>
         </div>
 
-        <TabsContent value="posts" className="w-full md:w-4xl mx-auto  md:px-4 mt-2 border py-6 ">
+        <TabsContent
+          value="posts"
+          className="w-full md:w-4xl mx-auto  md:px-4 mt-2 border py-6 "
+        >
           {userPosts?.length > 0 ? (
             <div className="relative grid  grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-x-1 md:gap-4">
               {userPosts?.map((post, index) => (

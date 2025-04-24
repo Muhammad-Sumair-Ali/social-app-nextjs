@@ -11,7 +11,7 @@ export const usePostsActions = ({ post }: PostCardProps) => {
   const [liked, setLiked] = useState(
     post?.likes.some((postUser: any) => postUser._id === user?._id?.toString())
   );
-  const isOwnPost = post?.user?._id.toString() === user?._id?.toString();
+  const isOwnPost = post?.user._id.toString() === user?._id?.toString();
 
   const [likesCount, setLikesCount] = useState(post?.likes.length);
   const [showComments, setShowComments] = useState(false);
@@ -166,6 +166,7 @@ export const useFetchPosts = () => {
   const [posts, setPosts] = useState<PostCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [reels, setReels] = useState<PostCardData[]>([]);
 
 
   const handleFetchPosts = async () => {
@@ -190,6 +191,22 @@ export const useFetchPosts = () => {
       setLoading(false);
     }
   };
+
+
+    async function fetchReels() {
+      try {
+        setLoading(true);
+        const res = await axios.get("/api/posts/get-reels");
+        setReels(res.data.data);
+        setLoading(false);
+      } catch (error) {
+        console.error("ERROR getting reels", error);
+        setError("Failed to load reels. Please try again later.");
+        setLoading(false);
+      }
+    }
+
+
   const refetchPosts = async () => {
     setPosts([]); 
     await handleFetchPosts(); 
@@ -205,5 +222,6 @@ export const useFetchPosts = () => {
     loading,
     error,
     handleFetchPosts,
+    reels,fetchReels
   };
 };

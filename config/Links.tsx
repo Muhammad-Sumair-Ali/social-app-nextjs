@@ -22,9 +22,9 @@ export type NavLink = {
 export const NAV_LINKS: NavLink[] = [
   { 
     href: "/", 
-    label: "For You", 
+    label: "Home", 
     icon: <Home className="w-6 h-6" />,
-    requiresAuth: false // Available to all users
+    requiresAuth: false 
   },
   {
     href: "/trending",
@@ -34,10 +34,10 @@ export const NAV_LINKS: NavLink[] = [
     redirectIfNoAuth: "/login"
   },
   {
-    href: "/reels",
+    href: "/videos-reels",
     label: "Reels",
     icon: <PlusSquare className="w-6 h-6" />,
-    requiresAuth: true,
+    requiresAuth: false,
     redirectIfNoAuth: "/login"
   },
   {

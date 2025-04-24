@@ -74,6 +74,7 @@ export interface PostCardData {
 
 
 export interface IPost {
+  _id?:Types.ObjectId;
   user: object;
   caption: string;
   mediaUrl: string;

@@ -96,7 +96,7 @@ const CustomVideoPlayer: React.FC<CustomVideoPlayerProps> = ({
   }, [autoPlay, muted]);
 
   return (
-    <div className={`custom-video-container ${className}`} style={{ width, height }}>
+    <div className={`custom-video-container bg-gradient-to-br from-zinc-400 via-gray-200 to-zinc-400  shadow-lg ${className}`} style={{ width, height }}>
       <video
         ref={videoRef}
         className="custom-video rounded-none"

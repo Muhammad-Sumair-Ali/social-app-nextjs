@@ -58,7 +58,7 @@ export default function Header() {
               />
             </div>
 
-            <Link href={ user ? "/upload" : "/login"}>
+            <Link href={user ? "/upload" : "/login"}>
               <Button
                 variant="outline"
                 size="sm"
@@ -143,6 +143,15 @@ export default function Header() {
               )}
             </Button>
           </div>
+          <Avatar className="h-10 w-10">
+            <AvatarImage
+              src={user?.image || ""}
+              alt={user?.fullName || "User"}
+            />
+            <AvatarFallback className="bg-gradient-to-br from-pink-500 to-rose-500 text-white">
+              {user?.email?.charAt(0).toUpperCase() || "U"}
+            </AvatarFallback>
+          </Avatar>
         </div>
       </div>
 
@@ -162,15 +171,6 @@ export default function Header() {
             {user?._id ? (
               <>
                 <div className="flex items-center gap-3 p-2">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage
-                      src={user?.image || ""}
-                      alt={user.fullName || "User"}
-                    />
-                    <AvatarFallback className="bg-gradient-to-br from-pink-500 to-rose-500 text-white">
-                      {user.email?.charAt(0).toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
                   <div className="flex flex-col">
                     <span className="font-medium">
                       {user.fullName || "User"}

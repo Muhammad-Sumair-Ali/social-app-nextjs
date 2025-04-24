@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import { getInitials } from "@/lib/helpers";
 
 const ChatUsersListing = () => {
   const { user } = useAuth();
@@ -40,7 +41,6 @@ const ChatUsersListing = () => {
     router.push(`/messages/${userId}`);
   };
 
-  // Filter users to show only those the current user is following
   const followingUsers = Array.isArray(users)
     ? users.filter(
         (u) =>
@@ -53,13 +53,13 @@ const ChatUsersListing = () => {
     u.fullName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
-  };
+  // const getInitials = (name: string) => {
+  //   return name
+  //     .split(" ")
+  //     .map((n) => n[0])
+  //     .join("")
+  //     .toUpperCase();
+  // };
 
   return (
     <div className="flex flex-col min-h-screen px-4 py-2">

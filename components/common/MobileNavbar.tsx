@@ -4,7 +4,7 @@
 import type * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Bell, User, MessageCircle } from "lucide-react"
+import { Home, Bell, User, MessageCircle, Video } from "lucide-react"
 import { useAuth } from "@/app/context/useAuth"
 
 import { cn } from "@/lib/utils"
@@ -21,6 +21,12 @@ const defaultItems: NavItem[] = [
     icon: Home,
     label: "Home",
     href: "/",
+    requiresAuth: false
+  },
+  {
+    icon: Video,
+    label: "Reels",
+    href: "/videos-reels",
     requiresAuth: false
   },
   {
@@ -67,10 +73,10 @@ export function MobileNav({ items = defaultItems, className }: MobileNavProps) {
               href={actualHref}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 text-muted-foreground transition-colors",
-                isActive && "text-primary",
+                isActive && "text-blue-600",
               )}
             >
-              <Icon className={cn("h-6 w-6", isActive && "text-primary")} />
+              <Icon className={cn("h-6 w-6", isActive && "text-blue-700")} />
               <span className="text-xs font-medium">{item.label}</span>
             </Link>
           )
