@@ -7,6 +7,8 @@ import SuggestUsersMobile from "../common/SuggestUserMobile";
 const ListingPostsCards: React.FC = () => {
   const { posts, loading, handleFetchPosts } = useFetchPosts();
 
+
+  
   useEffect(() => {
     handleFetchPosts();
   }, []);

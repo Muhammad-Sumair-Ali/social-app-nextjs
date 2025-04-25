@@ -13,7 +13,6 @@ export async function GET() {
 
     const posts = await Post.find()
       .sort({ createdAt: -1 })
-      .populate("likes", "fullName image")
       .lean(); 
 
     return NextResponse.json({ posts }, { status: 200 });
@@ -41,11 +40,11 @@ export async function DELETE(req: NextRequest) {
     }
  
     const publicId = extractPublicId(post.mediaUrl)
-    console.log("extracted publicId =>",publicId)
+    // console.log("extracted publicId =>",publicId)
 
     // Delete the media from Cloudinary
     const deleteSuccess = await deleteFromCloudinary(publicId);
-    console.log("delete success=>",deleteSuccess)
+    // console.log("delete success=>",deleteSuccess)
     if (!deleteSuccess) {
       return NextResponse.json({ message: "Error deleting media" }, { status: 500 });
     }

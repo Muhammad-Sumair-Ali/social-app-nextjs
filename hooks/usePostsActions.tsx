@@ -180,16 +180,16 @@ export const useFetchPosts = () => {
       const response = await axios.get("/api/posts");
       const newPosts = response.data.posts;
 
-      setPosts((prevPosts) => {
-        const combined = [...prevPosts, ...newPosts];
-        const uniquePosts = combined.filter(
-          (post, index, self) =>
-            index === self.findIndex((p) => p._id === post._id)
-        );
-        return uniquePosts;
-      });
+      // setPosts((prevPosts) => {
+      //   const combined = [...prevPosts, ...newPosts];
+      //   const uniquePosts = combined.filter(
+      //     (post, index, self) =>
+      //       index === self.findIndex((p) => p._id === post._id)
+      //   );
+      //   return uniquePosts;
+      // });
       
-      
+      setPosts(newPosts);
     } catch (error) {
       console.error("Error fetching posts:", error);
       setError("Failed to load posts. Please try again later.");
