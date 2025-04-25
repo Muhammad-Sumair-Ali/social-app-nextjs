@@ -3,13 +3,15 @@
 import { useAuth } from "@/app/context/useAuth";
 import { PostCardData, PostCardProps } from "@/lib/types";
 import axios from "axios";
-import {  useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // posts , like comment, share, save, follow, unfollow, delete post
 export const usePostsActions = ({ post }: PostCardProps) => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+
   const [liked, setLiked] = useState(
     post?.likes.some((postUser: any) => postUser._id === user?._id?.toString())
   );
@@ -38,81 +40,134 @@ export const usePostsActions = ({ post }: PostCardProps) => {
 
 
 
-
-    const handleDeletepost = async (postId: string) => {
-      if (!postId) return;
-      try {
-          await axios.delete("/api/posts/delete", {
-          params: {
-            id: postId,
-          },
-        });
-        toast.success("Post deleted successfully!");
-      } catch (error) {
-        console.error("Error delete Post", error);
-        toast.error("Could not delete post. Please try again.");
-      }
-    };
-    
-  const handleLike = async () => {
-    try {
-      const response = await axios.post("/api/posts/like", {
-        postId: post._id,
-        postownerId: post.user._id
+  // Delete Post Mutation
+  const deletePostMutation = useMutation({
+    mutationFn: async (postId: string) => {
+      return await axios.delete("/api/posts/delete", {
+        params: { id: postId },
       });
+    },
+    onSuccess: () => {
+      toast.success("Post deleted successfully!");
+      // Invalidate and refetch posts after deletion
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["reels"] });
+    },
+    onError: (error) => {
+      console.error("Error delete Post", error);
+      toast.error("Could not delete post. Please try again.");
+    },
+  });
+
+  const handleDeletepost = async (postId: string) => {
+    if (!postId) return;
+    deletePostMutation.mutate(postId);
+  };
+
+  // Like Post Mutation
+  const likePostMutation = useMutation({
+    mutationFn: async () => {
+      return await axios.post("/api/posts/like", {
+        postId: post._id,
+        postownerId: post.user._id,
+      });
+    },
+    onSuccess: (response) => {
       setLiked(response.data.liked);
       setLikesCount((prev) => (response.data.liked ? prev + 1 : prev - 1));
-      toast.success("Post Liked")
-    } catch (error) {
+      toast.success(response.data.liked ? "Post Liked" : "Post Unliked");
+      // Update post cache
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+    onError: (error) => {
       console.error("Error liking post:", error);
       toast.error("Could not like post. Please try again.");
-    }
+    },
+  });
+
+  const handleLike = async () => {
+    likePostMutation.mutate();
   };
+
+  // Comment Post Mutation
+  const commentPostMutation = useMutation({
+    mutationFn: async (commentData: { text: string }) => {
+      return await axios.post("/api/posts/comment", {
+        postId: post._id,
+        postownerId: post.user._id,
+        text: commentData.text,
+      });
+    },
+    onSuccess: (response) => {
+      const newComment = response.data;
+      setComments((prev) => [
+        ...prev,
+        {
+          ...newComment,
+        },
+      ]);
+      setCommentText("");
+      toast.success("Comment added successfully!");
+      // Update post cache to reflect new comment
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+    onError: (error) => {
+      console.error("Error adding comment:", error);
+      toast.error("Could not add comment. Please try again.");
+    },
+  });
 
   const handleComment = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!commentText.trim()) return;
-    try {
-      const response = await axios.post("/api/posts/comment", {
-        postId: post._id,
-        postownerId: post.user._id,
-        text: commentText,
-      });
-
-      if (response.data) {
-        const newComment = response.data;
-        setComments((prev) => [
-          ...prev,
-          {
-            ...newComment,
-          },
-        ]);
-        setCommentText("");
-      }
-      toast.success("Comment added successfully!");
-    } catch (error) {
-      console.error("Error adding comment:", error);
-      toast.error("Could not add comment. Please try again.");
-    }
+    commentPostMutation.mutate({ text: commentText });
   };
 
-  const handleFollow = async () => {
-    try {
-      const response = await axios.post("/api/posts/follow", {
+  // Follow User Mutation
+  const followUserMutation = useMutation({
+    mutationFn: async () => {
+      return await axios.post("/api/posts/follow", {
         userId: post.user._id,
       });
+    },
+    onSuccess: (response) => {
       setIsFollowing(response.data.following);
-      toast.success(response.data.following ? "Following" : "Unfollowed",);
-    } catch (error) {
+      toast.success(response.data.following ? "Following" : "Unfollowed");
+      // Update user data in cache
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+    onError: (error) => {
       console.error("Error following user:", error);
-      toast("Could not follow user. Please try again");
-    }
+      toast.error("Could not follow user. Please try again");
+    },
+  });
+
+  const handleFollow = async () => {
+    followUserMutation.mutate();
   };
+
+  // Save Post Function
+  const savePostMutation = useMutation({
+    mutationFn: async () => {
+      // You should implement an API endpoint for saving posts
+      return await axios.post("/api/posts/save", {
+        postId: post._id,
+      });
+    },
+    onSuccess: (response) => {
+      setSaved(response.data.saved);
+      toast.success(response.data.saved ? "Post saved" : "Post unsaved");
+      // Update saved posts in cache if you have a separate query for it
+      queryClient.invalidateQueries({ queryKey: ["savedPosts"] });
+    },
+    onError: () => {
+      toast.error("Could not save post. Please try again.");
+    },
+  });
 
   const handleSave = () => {
     setSaved(!saved);
-    toast("Post saved successfully!");
+    toast.success("Post saved successfully!");
   };
 
   const handleShare = (platform: string) => {
@@ -161,73 +216,116 @@ export const usePostsActions = ({ post }: PostCardProps) => {
     setShowComments,
     saved,
     setSaved,
+    isDeleting: deletePostMutation.isPending,
+    isLiking: likePostMutation.isPending,
+    isCommenting: commentPostMutation.isPending,
+    isFollowingLoading: followUserMutation.isPending,
+    isSaving: savePostMutation.isPending,
   };
 };
 
 
 
-// fetch posts data hooks
+
+// fetch posts data hooks with React Query
 export const useFetchPosts = () => {
-  const [posts, setPosts] = useState<PostCardData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [reels, setReels] = useState<PostCardData[]>([]);
+  const queryClient = useQueryClient();
 
-
-  const handleFetchPosts = async () => {
-    setLoading(true);
-    try {
+  // Query for fetching all posts
+  const {
+    data: posts = [],
+    isLoading: postsLoading,
+    error: postsError,
+    refetch: refetchPosts,
+  } = useQuery({
+    queryKey: ["posts"],
+    queryFn: async () => {
       const response = await axios.get("/api/posts");
-      const newPosts = response.data.posts;
+      return response.data.posts as PostCardData[];
+    },
+    refetchOnWindowFocus: true,
+    staleTime: 60000, 
+  });
 
-      // setPosts((prevPosts) => {
-      //   const combined = [...prevPosts, ...newPosts];
-      //   const uniquePosts = combined.filter(
-      //     (post, index, self) =>
-      //       index === self.findIndex((p) => p._id === post._id)
-      //   );
-      //   return uniquePosts;
-      // });
-      
-      setPosts(newPosts);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-      setError("Failed to load posts. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Query for fetching reels
+  const {
+    data: reels = [],
+    isLoading: reelsLoading,
+    error: reelsError,
+    refetch: refetchReels,
+  } = useQuery({
+    queryKey: ["reels"],
+    queryFn: async () => {
+      const response = await axios.get("/api/posts/get-reels");
+      return response.data.data as PostCardData[];
+    },
+    refetchOnWindowFocus: true,
+    staleTime: 60000, // 1 minute
+  });
 
+  // Create Post Mutation
+  const createPostMutation = useMutation({
+    mutationFn: async (postData: any) => {
+      return await axios.post("/api/posts/create", postData);
+    },
+    onSuccess: () => {
+      toast.success("Post created successfully!");
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["reels"] });
+    },
+    onError: () => {
+      toast.error("Failed to create post. Please try again.");
+    },
+  });
 
-    async function fetchReels() {
-      try {
-        setLoading(true);
-        const res = await axios.get("/api/posts/get-reels");
-        setReels(res.data.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("ERROR getting reels", error);
-        setError("Failed to load reels. Please try again later.");
-        setLoading(false);
-      }
-    }
-
-
-  const refetchPosts = async () => {
-    setPosts([]); 
-    await handleFetchPosts(); 
-  };
-  
-
-  
+  const loading = postsLoading || reelsLoading;
+  const error = postsError
+    ? "Failed to load posts. Please try again later."
+    : reelsError
+    ? "Failed to load reels. Please try again later."
+    : "";
 
   return {
-    refetchPosts,
-    setLoading,
     posts,
+    reels,
     loading,
     error,
-    handleFetchPosts,
-    reels,fetchReels
+    refetchPosts,
+    refetchReels,
+    createPost: createPostMutation.mutate,
+    isCreatingPost: createPostMutation.isPending,
+  };
+};
+
+
+
+
+// separate hook for user posts
+export const useUserPosts = (user: any) => {
+  const {
+    data: userPosts = [],
+    isLoading,
+    error,
+    refetch: refetchUserPosts
+  } = useQuery({
+    queryKey: ["userPosts", user?._id],
+    queryFn: async () => {
+      const response = await axios.post("/api/posts/userposts", {
+        userId: user._id,
+      });
+      return response.data.posts as PostCardData[];
+    },
+    refetchOnWindowFocus: true,
+    staleTime: 60000,
+    enabled: !!user && !!user._id,
+  });
+
+  const effectiveIsLoading = !user || isLoading;
+
+  return {
+    userPosts,
+    isLoading: effectiveIsLoading,
+    error: error ? "Failed to load user posts. Please try again later." : "",
+    refetchUserPosts
   };
 };

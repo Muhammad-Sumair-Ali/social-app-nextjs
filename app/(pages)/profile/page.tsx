@@ -1,32 +1,25 @@
 "use client";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/useAuth";
 import { PencilLine, Settings, Share2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfilePostCard } from "@/components/post/ProfilePostsCard";
-import { ProfileSkeleton } from "@/components/panel/UserProfileSkeleton";
+import { ProfilePostsSkeleton } from "@/components/panel/UserProfileSkeleton";
 import LoginFirst from "@/components/panel/LoginFirst";
-import { useUserDataActions } from "@/hooks/useUserDataActions";
+import { useUserPosts } from "@/hooks/usePostsActions";
 
 export default function Profile() {
   const { user } = useAuth();
   const router = useRouter();
-  const { fetchUserPosts, isLoading, userPosts } = useUserDataActions();
-
-  useEffect(() => {
-    if (user) {
-      fetchUserPosts(user);
-    }
-  }, [user?._id]);
+  const { userPosts, isLoading } = useUserPosts(user);
 
   if (!user) {
     return <LoginFirst />;
   }
 
-  if (isLoading) {
-    return <ProfileSkeleton />;
-  }
+  // if (isLoading) {
+  //   return <ProfileSkeleton />;
+  // }
 
   return (
     <div className="max-w-4xl mx-auto bg-gray-50 min-h-screen pb-20">
@@ -76,8 +69,6 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Bio */}
-              <p className="text-sm mb-4">{"Professional Developer 👨‍💻"}</p>
             </div>
 
             {/* Action Buttons */}
@@ -102,6 +93,8 @@ export default function Profile() {
 
       {/* Content Tabs */}
       <div className="py-4">
+        {isLoading && <ProfilePostsSkeleton />}
+
         {userPosts.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
             {userPosts.map((post, index) => (

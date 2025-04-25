@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProfileSkeleton() {
   return (
@@ -58,7 +58,13 @@ export function ProfileSkeleton() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
 
+export function ProfilePostsSkeleton() {
+  return (
+    <div>
       {/* Posts Grid Skeleton */}
       <div className="max-w-4xl mx-auto px-4 mt-6">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
@@ -70,6 +76,5 @@ export function ProfileSkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-

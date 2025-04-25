@@ -1,211 +1,213 @@
-"use client";
+"use client"
 
-import { useParams } from "next/navigation";
-import { useState, FormEvent, useEffect } from "react";
-import { useAuth } from "@/app/context/useAuth";
-import { getFirstNameFromEmail } from "@/lib/helpers";
-import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Send, RefreshCw, ArrowLeft, Paperclip } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useMessages } from "@/hooks/useMessages";
-import { useMessageUI } from "@/hooks/useMessageUI";
-import ChatLayout from "@/app/layout/ChatLayout";
-import { useUsersActions } from "@/hooks/useUsersAction";
-import { IUser } from "@/lib/types";
+import { useParams } from "next/navigation"
+import { useState, type FormEvent, useEffect } from "react"
+import { useAuth } from "@/app/context/useAuth"
+import { formatDateIntoAgoTimes, getFirstNameFromEmail } from "@/lib/helpers"
+import Link from "next/link"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Send, RefreshCw, ArrowLeft, Paperclip } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { useMessages } from "@/hooks/useMessages"
+import { useMessageUI } from "@/hooks/useMessageUI"
+import ChatLayout from "@/app/layout/ChatLayout"
+import { useUsersActions } from "@/hooks/useUsersAction"
 
 export default function UserMessagesChat() {
-  const { user: currentUser } = useAuth();
-  const [text, setText] = useState("");
-  const { id: receiverId } = useParams<{ id: string }>();
-  const [receiverUser, setReceiverUser] = useState<IUser>();
+  const { user: currentUser } = useAuth()
+  const [text, setText] = useState("")
+  const { id: receiverId } = useParams<{ id: string }>()
+
   // Custom hooks
-  const { fetchUserById } = useUsersActions();
-  const { messages, loading, sending, fetchMessages, sendMessage, setupPolling } = useMessages(currentUser, receiverId);
-  const { messagesEndRef, inputRef, formatMessageTime, isCurrentUser, groupedMessages, focusInput } = useMessageUI(messages, currentUser?._id);
+  const { useUser } = useUsersActions()
+  const { data: receiverUser } = useUser(receiverId)
 
-  // Initialize polling
-  setupPolling();
+  // Using the React Query-powered useMessages hook
+  const { messages, loading, sending, fetchMessages, sendMessage } = useMessages(currentUser, receiverId)
 
-  // Handle message submission
+  const { messagesEndRef, inputRef, isCurrentUser, groupedMessages, focusInput } = useMessageUI(
+    messages,
+    currentUser?._id,
+  )
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
+
+  // Handle message 
   const handleSendMessage = async (e?: FormEvent) => {
-    if (e) e.preventDefault();
-    if (!receiverUser || !text.trim()) return;
-    
-    await sendMessage(text, receiverUser);
-    setText("");
-    focusInput();
-  };
+    if (e) e.preventDefault()
+    if (!receiverUser || !text.trim()) return
 
-    useEffect(() => {
-      if (!receiverId) return;
-      fetchUserById(receiverId)
-        .then((userData) => {
-          setReceiverUser(userData);
-        })
-        .catch((error) => {
-          console.error("Failed to fetch receiver User :", error);
-        });
-    }, [receiverId]);
+    await sendMessage(text, receiverUser)
+    setText("")
+    focusInput()
+  }
 
   return (
     <ChatLayout>
+      <Card className="flex border-none rounded-none flex-col h-[calc(100vh-90px)] overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center p-2 pb-3 border-b bg-white/90 backdrop-blur-sm sticky top-0 z-10">
+          <Link href="/chat-home" className="mr-1 -mt-4">
+            <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 hover:bg-gray-100">
+              <ArrowLeft size={22} />
+            </Button>
+          </Link>
 
-    <Card className="flex border-none rounded-none  flex-col h-[calc(100vh-90px)] overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center  p-2 pb-3 border-b bg-white/90 backdrop-blur-sm sticky top-0 z-10">
-        <Link href="/chat-home" className="mr-1 -mt-4">
-          <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 hover:bg-gray-100">
-            <ArrowLeft size={22} />
-          </Button>
-        </Link>
-        
-        <Link href={`/${receiverUser?._id}`} className="flex items-center  -mt-5 flex-1 min-w-0">
-          <Avatar className="h-12 w-12 border shadow-sm mr-3">
-            <AvatarImage
-              src={receiverUser?.image}
-              alt={receiverUser?.fullName || "User"}
-            />
-            <AvatarFallback>
-              {receiverUser?.fullName?.substring(0, 2).toUpperCase() || 
-               receiverUser?.email?.substring(0, 2).toUpperCase() || "U"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="truncate">
-            <h2 className="text-base font-semibold text-foreground truncate">
-              {receiverUser?.fullName || getFirstNameFromEmail(receiverUser?.email || "")}
-            </h2>
-            <p className="text-xs text-muted-foreground truncate">
-              {receiverUser?.email}
-            </p>
-          </div>
-        </Link>
-        
-        <Button 
-          onClick={fetchMessages} 
-          variant="ghost" 
-          size="icon" 
-          className="ml-auto rounded-full h-11 -mt-4  w-11 hover:bg-gray-100"
-          disabled={loading}
-          title="Refresh messages"
-        >
-          <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
-        </Button>
-      </div>
-
-      {/* Messages area */}
-      <div className="flex-1 -mt-6 overflow-y-auto p-2 space-y-6 bg-gradient-to-b from-slate-50 to-white">
-        {Object.keys(groupedMessages).length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <Send size={24} className="text-primary" />
+          <Link href={`/${receiverUser?._id}`} className="flex items-center -mt-5 flex-1 min-w-0">
+            <Avatar className="h-12 w-12 border shadow-sm mr-3">
+              <AvatarImage src={receiverUser?.image || "/placeholder.svg"} alt={receiverUser?.fullName || "User"} />
+              {receiverUser?.email && (
+                <AvatarFallback fallbackKey={receiverUser.email}>
+                  {receiverUser?.email.substring(0, 2).toUpperCase()}
+                </AvatarFallback>
+              )}
+            </Avatar>
+            <div className="truncate">
+              <h2 className="text-base font-semibold text-foreground truncate">
+                {receiverUser?.fullName || getFirstNameFromEmail(receiverUser?.email || "")}
+              </h2>
+              <p className="text-xs text-muted-foreground truncate">{receiverUser?.email}</p>
             </div>
-            <p className="text-sm font-medium">No messages yet</p>
-            <p className="text-xs">Start a conversation with {receiverUser?.fullName || "this user"}!</p>
-          </div>
-        ) : (
-          Object.entries(groupedMessages).map(([date, dateMessages]) => (
-            <div key={date} className="space-y-4">
-              <div className="flex justify-center">
-                <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">
-                  {date}
-                </span>
-              </div>
-              
-              {dateMessages.map((msg, index) => {
-                const isSentByMe = isCurrentUser(msg.sender._id);
-                const showAvatar = !isSentByMe && 
-                  (index === 0 || 
-                   dateMessages[index - 1]?.sender._id.toString() !== msg.sender._id.toString());
-                
-                return (
-                  <AnimatePresence key={index}>
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className={`flex ${isSentByMe ? "justify-end" : "justify-start"}`}
-                    >
-                      <div className={`flex ${isSentByMe ? "flex-row-reverse" : "flex-row"} items-end gap-2 max-w-[85%]`}>
-                        {!isSentByMe && showAvatar ? (
-                          <Avatar className="h-6 w-6 flex-shrink-0">
-                            <AvatarImage src={msg.sender.image} />
-                            <AvatarFallback>
-                              {msg.sender.fullName?.substring(0, 2).toUpperCase() || 
-                               msg.sender.email?.substring(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                        ) : (
-                          <div className="w-6 flex-shrink-0" />
-                        )}
-                        
-                        <div className="flex flex-col">
-                          <div
-                            className={`px-4 py-2.5 rounded-2xl text-sm shadow-sm ${
-                              isSentByMe
-                                ? "bg-primary text-primary-foreground rounded-tr-none"
-                                : "bg-gray-100 text-foreground rounded-tl-none"
-                            }`}
-                          >
-                            {msg.text}
-                          </div>
-                          <span className={`text-xs text-muted-foreground mt-1 ${isSentByMe ? "text-right" : "text-left"} px-1`}>
-                            {formatMessageTime(msg.timestamp)}
-                          </span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </AnimatePresence>
-                );
-              })}
-            </div>
-          ))
-        )}
-        <div ref={messagesEndRef} />
-      </div>
+          </Link>
 
-      {/* Input area */}
-      <form onSubmit={handleSendMessage} className="p-3 border-t -mb-4 bg-white/80 backdrop-blur-sm">
-        <div className="flex gap-2 items-center bg-gray-50 rounded-full px-3 border border-gray-100 focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/50">
-          
-          <Button 
-            type="button"
-            variant="ghost" 
-            size="icon" 
-            className="h-11 w-11 rounded-full text-muted-foreground hover:text-foreground hover:bg-transparent"
+          <Button
+            onClick={() => fetchMessages()}
+            variant="ghost"
+            size="icon"
+            className="ml-auto rounded-full h-11 -mt-4 w-11 hover:bg-gray-100"
+            disabled={loading}
+            title="Refresh messages"
           >
-            <Paperclip size={20} />
-          </Button>
-          
-          <Input
-            ref={inputRef}
-            placeholder="Type a message..."
-            className="flex-1 font-semibold h-12 border-0 bg-transparent focus-visible:ring-0 px-1"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSendMessage();
-              }
-            }}
-            disabled={!receiverUser}
-          />
-          
-          <Button 
-            type="submit"
-            className="h-11 w-11 rounded-full p-0 flex items-center justify-center bg-primary hover:bg-primary/90 text-white"
-            disabled={!text.trim() || sending || !receiverUser}
-          >
-            <Send size={16} className={sending ? "animate-pulse" : ""} />
+            <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
           </Button>
         </div>
-      </form>
-    </Card>
-    </ChatLayout>
 
-  );
+        {/* Messages */}
+        <div className="flex-1 -mt-6 p-2 bg-gradient-to-b from-slate-100 to-white relative overflow-hidden">
+          <div 
+            className="h-full overflow-y-auto scrollbar-thin" 
+            style={{
+              scrollbarWidth: "thin",
+              scrollbarColor: "rgba(0, 0, 0, 0.2) transparent",
+            }}
+          >
+            {Object.keys(groupedMessages).length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  <Send size={24} className="text-primary" />
+                </div>
+                <p className="text-sm font-medium">No messages yet</p>
+                <p className="text-xs">Start a conversation with {receiverUser?.fullName || "this user"}!</p>
+              </div>
+            ) : (
+              Object.entries(groupedMessages).map(([date, dateMessages]) => (
+                <div key={date} className="space-y-4">
+                  <div className="flex justify-center">
+                    <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">{date}</span>
+                  </div>
+
+                  {dateMessages.map((msg, index) => {
+                    const isSentByMe = isCurrentUser(msg.sender._id)
+                    const showAvatar =
+                      !isSentByMe &&
+                      (index === 0 || dateMessages[index - 1]?.sender._id.toString() !== msg.sender._id.toString())
+
+                    return (
+                      <AnimatePresence key={msg._id?.toString() || index}>
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className={`flex ${isSentByMe ? "justify-end" : "justify-start"}`}
+                        >
+                          <div
+                            className={`flex ${
+                              isSentByMe ? "flex-row-reverse" : "flex-row"
+                            } items-end gap-2 max-w-[85%]`}
+                          >
+                            {!isSentByMe && showAvatar ? (
+                              <Avatar className="h-8 w-8 flex-shrink-0">
+                                <AvatarImage src={msg.sender?.image || "/placeholder.svg"} />
+                                <AvatarFallback fallbackKey={msg.sender?.email}>
+                                  {msg?.sender?.email.substring(0, 2).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                            ) : (
+                              <div className="w-6 flex-shrink-0" />
+                            )}
+
+                            <div className="flex flex-col">
+                              <div
+                                className={`px-4 py-2.5 rounded-2xl text-sm shadow-sm ${
+                                  isSentByMe
+                                    ? "bg-primary text-primary-foreground rounded-tr-none"
+                                    : "bg-gray-100 text-foreground rounded-tl-none"
+                                }`}
+                              >
+                                {msg.text}
+                              </div>
+                              <span
+                                className={`text-xs text-muted-foreground mt-1 ${
+                                  isSentByMe ? "text-right" : "text-left"
+                                } px-1`}
+                              >
+                                {formatDateIntoAgoTimes(msg.timestamp?.toString())}
+                              </span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      </AnimatePresence>
+                    )
+                  })}
+                </div>
+              ))
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+        </div>
+
+        {/* Input area */}
+        <form onSubmit={handleSendMessage} className="p-3 border-t -mb-4 bg-white/80 backdrop-blur-sm">
+          <div className="flex gap-2 items-center bg-gray-50 rounded-full px-3 border border-gray-100 focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/50">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-11 w-11 rounded-full text-muted-foreground hover:text-foreground hover:bg-transparent"
+            >
+              <Paperclip size={20} />
+            </Button>
+
+            <Input
+              ref={inputRef}
+              placeholder="Type a message..."
+              className="flex-1 font-semibold h-12 border-0 bg-transparent focus-visible:ring-0 px-1"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault()
+                  handleSendMessage()
+                }
+              }}
+              disabled={!receiverUser}
+            />
+
+            <Button
+              type="submit"
+              className="h-11 w-11 rounded-full p-0 flex items-center justify-center bg-primary hover:bg-primary/90 text-white"
+              disabled={!text.trim() || sending || !receiverUser}
+            >
+              <Send size={16} className={sending ? "animate-pulse" : ""} />
+            </Button>
+          </div>
+        </form>
+      </Card>
+    </ChatLayout>
+  )
 }

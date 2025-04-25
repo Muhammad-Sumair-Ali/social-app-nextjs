@@ -115,11 +115,7 @@ export function ProfilePostCard({ post }: PostCardProps) {
                 alt={post.user.fullName || post.user.email}
               />
               <AvatarFallback>
-                {(
-                  post.user.fullName?.[0] ||
-                  post.user.email?.[0] ||
-                  "U"
-                ).toUpperCase()}
+                {post?.user?.email.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <p className="font-medium text-xs text-white truncate">
@@ -151,7 +147,7 @@ export function ProfilePostCard({ post }: PostCardProps) {
       {/* Post Detail Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[90vw] md:max-w-[80vw] lg:max-w-[1000px] p-0 overflow-hidden max-h-[90vh] h-[90vh] flex flex-col">
-          <DialogClose className="absolute right-4 top-4 z-50 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+          <DialogClose className="absolute right-4 top-6 z-50 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
             <X className="h-6 w-6 text-white bg-black/20 rounded-full p-1" />
             <span className="sr-only">Close</span>
           </DialogClose>
@@ -193,11 +189,8 @@ export function ProfilePostCard({ post }: PostCardProps) {
                     alt={post.user.fullName || post.user.email}
                   />
                   <AvatarFallback>
-                    {(
-                      post.user.fullName?.[0] ||
-                      post.user.email?.[0] ||
-                      "U"
-                    ).toUpperCase()}
+                  {post?.user?.email.substring(0, 2).toUpperCase()}
+
                   </AvatarFallback>
                 </Avatar>
                 <div>
@@ -225,9 +218,9 @@ export function ProfilePostCard({ post }: PostCardProps) {
                     onClick={() => deletePost(post._id)}
                     variant="destructive"
                     size="sm"
-                    className="ml-auto sm:mr-10"
+                    className="ml-auto sm:mr-10 cursor-pointer"
                   >
-                    Delete
+                    Delete Post
                   </Button>
                 )}
               </div>

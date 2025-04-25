@@ -7,7 +7,7 @@ import { useUsersActions } from "@/hooks/useUsersAction";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UserPlus, RefreshCw, Users } from "lucide-react";
+import { UserPlus, RefreshCw, Users, Loader2 } from "lucide-react";
 import { useSuggestedUsers } from "@/app/context/suggestingUsersContext";
 import type { IUser } from "@/lib/types";
 import { motion } from "framer-motion";
@@ -15,8 +15,8 @@ import { useEffect } from "react";
 
 const UsersSuggestSidebar = () => {
   const { user } = useAuth();
-  const { users, loading,fetchSuggestedUsers } = useSuggestedUsers();
-  const { handleFollow } = useUsersActions();
+  const { users, loading, fetchSuggestedUsers } = useSuggestedUsers();
+  const { handleFollow, isFollowLoading } = useUsersActions();
 
   useEffect(() => {
     if (user) {
@@ -91,7 +91,6 @@ const UsersSuggestSidebar = () => {
           </div>
         ) : filterUsers?.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-3 text-center space-y-2">
-           
             <p className="text-sm text-muted-foreground">
               You&#39;re following all suggested users
             </p>
@@ -120,15 +119,13 @@ const UsersSuggestSidebar = () => {
                     <AvatarImage src={account.image} alt={account.fullName} />
                     <AvatarFallback fallbackKey={account.email}>
                       {account.email.substring(0, 2).toUpperCase()}
+                      
                     </AvatarFallback>
                   </Avatar>
                 </Link>
 
                 <div className="flex flex-col min-w-0">
-                  <Link
-                    href={`/${account._id}`}
-                    className="hover:underline"
-                  >
+                  <Link href={`/${account._id}`} className="hover:underline">
                     <span className="text-sm font-medium truncate block">
                       {account.fullName}
                     </span>
@@ -148,6 +145,17 @@ const UsersSuggestSidebar = () => {
                   <UserPlus className="h-3.5 w-3.5 mr-1.5" />
                   Follow
                 </Button>
+                {isFollowLoading && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="ml-auto shrink-0 rounded-full h-8 px-3 hover:bg-primary hover:text-primary-foreground transition-colors"
+                    disabled
+                  >
+                    <Loader2 className="animate-spin" />
+                    Please wait..
+                  </Button>
+                )}
               </motion.div>
             ))}
           </div>

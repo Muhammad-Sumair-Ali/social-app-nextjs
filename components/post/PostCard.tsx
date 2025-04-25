@@ -155,7 +155,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {isOwnPost && (
+            {!isOwnPost && (
               <Button
                 onClick={async () => (user ? handleFollow() : setIsModalOpen(true))}
                 variant={isFollowing ? "outline" : "default"}

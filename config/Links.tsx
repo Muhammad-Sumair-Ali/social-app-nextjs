@@ -3,7 +3,6 @@ import {
   Home,
   PlusSquare,
   User,
-  TrendingUp,
   Bell,
   MessageCircle,
 } from "lucide-react";
@@ -26,13 +25,7 @@ export const NAV_LINKS: NavLink[] = [
     icon: <Home className="w-6 h-6" />,
     requiresAuth: false 
   },
-  {
-    href: "/trending",
-    label: "Trending",
-    icon: <TrendingUp className="w-6 h-6" />,
-    requiresAuth: true,
-    redirectIfNoAuth: "/login"
-  },
+  
   {
     href: "/videos-reels",
     label: "Reels",

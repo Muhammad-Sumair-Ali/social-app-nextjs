@@ -32,9 +32,9 @@ const UserProfileDropdown = ({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
               <Avatar className="h-9 w-9 lg:w-11 shadow lg:h-11 border border-gray-200 dark:border-gray-700">
-                <AvatarImage src={user.image || ""} alt={user.fullName} />
-                <AvatarFallback fallbackKey={user.email}>
-                  {user.email?.charAt(0).toUpperCase() || "U"}
+                <AvatarImage src={user?.image || ""} alt={user?.fullName} />
+                <AvatarFallback fallbackKey={user?.email}>
+                  {user?.email.substring(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             </Button>

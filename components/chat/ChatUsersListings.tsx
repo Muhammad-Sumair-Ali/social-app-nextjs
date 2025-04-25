@@ -19,7 +19,6 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { getInitials } from "@/lib/helpers";
 
 const ChatUsersListing = () => {
   const { user } = useAuth();
@@ -53,20 +52,11 @@ const ChatUsersListing = () => {
     u.fullName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // const getInitials = (name: string) => {
-  //   return name
-  //     .split(" ")
-  //     .map((n) => n[0])
-  //     .join("")
-  //     .toUpperCase();
-  // };
-
   return (
     <div className="flex flex-col min-h-screen px-4 py-2">
       <Card className="flex-1 border-none shadow-none -mt-2">
         <CardHeader className="px-2 -my-4">
           <div className="flex items-center justify-between  gap-x-3">
-            
             <div className="flex justify-center gap-x-2 items-center">
               <Link href="/" className="mr-1 ">
                 <Button
@@ -77,17 +67,19 @@ const ChatUsersListing = () => {
                   <ArrowLeft size={22} />
                 </Button>
               </Link>
-            <div>
-              <CardTitle className="text-2xl">Messages</CardTitle>
-              <CardDescription>Chat with people you follow</CardDescription>
-            </div>
+              <div>
+                <CardTitle className="text-2xl">Messages</CardTitle>
+                <CardDescription>Chat with people you follow</CardDescription>
+              </div>
             </div>
             <div>
               <Avatar className="h-10 w-10 lg:w-11 shadow lg:h-11 border border-gray-200 dark:border-gray-700">
                 <AvatarImage src={user?.image || ""} alt={user?.fullName} />
-                <AvatarFallback fallbackKey={user?.email}>
-                  {user?.email?.charAt(0).toUpperCase() || "U"}
-                </AvatarFallback>
+                {user?.email && (
+                  <AvatarFallback fallbackKey={user.email}>
+                    {user?.email.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                )}
               </Avatar>
             </div>
           </div>
@@ -118,7 +110,7 @@ const ChatUsersListing = () => {
                   ))}
               </div>
             ) : filteredUsers.length > 0 ? (
-              <div className="divide-y">
+              <div className="space-y-2">
                 {filteredUsers.map((chatUser) => (
                   <div
                     key={chatUser._id}
@@ -130,9 +122,11 @@ const ChatUsersListing = () => {
                         src={chatUser.image || ""}
                         alt={chatUser.fullName}
                       />
-                      <AvatarFallback>
-                        {getInitials(chatUser.fullName)}
-                      </AvatarFallback>
+                      {chatUser?.email && (
+                        <AvatarFallback fallbackKey={chatUser.email}>
+                          {chatUser?.email.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                     <div className="ml-4 flex-1">
                       <div className="flex items-center">

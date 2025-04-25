@@ -1,37 +1,21 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useParams, useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfilePostCard } from "@/components/post/ProfilePostsCard";
-import { ProfileSkeleton } from "@/components/panel/UserProfileSkeleton";
-import { IUser } from "@/lib/types";
-import { useUserDataActions } from "@/hooks/useUserDataActions";
+import {
+  ProfilePostsSkeleton,
+  ProfileSkeleton,
+} from "@/components/panel/UserProfileSkeleton";
 import { useUsersActions } from "@/hooks/useUsersAction";
+import { useUserPosts } from "@/hooks/usePostsActions";
 
 export default function Profile() {
   const { id } = useParams();
-  const [user, setUser] = useState<IUser | null>(null);
-  const { fetchUserById } = useUsersActions();
+  const { useUser } = useUsersActions();
+  const { data: user } = useUser(id?.toString());
+  const router = useRouter();
 
-  useEffect(() => {
-    if (!id) return;
-    fetchUserById(id)
-      .then((userData) => {
-        setUser(userData);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch user data:", error);
-      });
-  }, [id]);
-
-  const { fetchUserPosts, userPosts } = useUserDataActions();
-
-  useEffect(() => {
-    if (user) {
-      fetchUserPosts(user);
-    }
-  }, [user?._id]);
+  const { userPosts, isLoading } = useUserPosts(user);
 
   if (!user) {
     return <ProfileSkeleton />;
@@ -91,63 +75,34 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Bio */}
-              <p className="text-sm mb-4">{"Professional Developer 👨‍💻"}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Content Tabs */}
-      <Tabs defaultValue="posts" className="w-full">
-        <div className="border-b bg-white px-3 pb-2 rounded-b-2xl">
-          <TabsList className="max-w-4xl mx-auto h-12 bg-transparent">
-            <TabsTrigger
-              value="posts"
-              className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-black data-[state=active]:rounded-none data-[state=active]:shadow-none"
-            >
-              Posts
-            </TabsTrigger>
-            <TabsTrigger
-              value="liked"
-              className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-black data-[state=active]:rounded-none data-[state=active]:shadow-none"
-            >
-              Liked
-            </TabsTrigger>
-          </TabsList>
-        </div>
-
-        <TabsContent
-          value="posts"
-          className="w-full md:w-4xl mx-auto  md:px-4 mt-2 border py-6 "
-        >
-          {userPosts?.length > 0 ? (
-            <div className="relative grid  grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-x-1 md:gap-4">
-              {userPosts?.map((post, index) => (
-                <ProfilePostCard key={index} post={post} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 px-6 bg-white rounded-lg shadow-sm">
-              <p className="text-gray-600 mb-4">
-                User haven&apos;t created any posts yet.
-              </p>
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="liked" className="max-w-4xl mx-auto px-4 mt-6">
-          <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-            <p className="text-gray-600">No liked posts yet</p>
+      <div className="py-4">
+        {isLoading && <ProfilePostsSkeleton />}
+        {userPosts.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+            {userPosts?.map((post, index) => (
+              <ProfilePostCard key={index} post={post} />
+            ))}
           </div>
-        </TabsContent>
-
-        <TabsContent value="saved" className="max-w-4xl mx-auto px-4 mt-6">
+        ) : (
           <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-            <p className="text-gray-600">No saved posts yet</p>
+            <p className="text-gray-600 mb-4">
+              You haven&#39;t created any posts yet.
+            </p>
+            <button
+              onClick={() => router.push("/create")}
+              className="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 font-medium"
+            >
+              Create Your First Post
+            </button>
           </div>
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
     </div>
   );
 }

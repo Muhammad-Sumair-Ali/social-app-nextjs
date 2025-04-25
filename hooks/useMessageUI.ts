@@ -13,10 +13,6 @@ export const useMessageUI = (messages: IMessages[], currentUserId?: Types.Object
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Format timestamp to display time
-  const formatMessageTime = (timestamp: Date | string) => {
-    return format(new Date(timestamp), "h:mm a");
-  };
 
   // Check if sender is current user
   const isCurrentUser = (senderId: Types.ObjectId) => {
@@ -49,7 +45,6 @@ export const useMessageUI = (messages: IMessages[], currentUserId?: Types.Object
     messagesEndRef,
     inputRef,
     scrollToBottom,
-    formatMessageTime,
     isCurrentUser,
     groupedMessages,
     focusInput

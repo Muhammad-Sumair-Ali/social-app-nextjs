@@ -121,30 +121,23 @@
     @apply bg-background text-foreground;
   }
 }
-/* Webkit Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 8px; /* Slim scrollbar */
-  height: 8px; /* Slim scrollbar for horizontal scroll */
+/* Add to your global.css */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
 }
 
-/* Scrollbar Track (Background) */
-::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Light gray */
-  border-radius: 10px;
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-/* Scrollbar Thumb (Draggable part) */
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(45deg, #86868a, #868487); /* Modern gradient */
-  border-radius: 10px;
-  transition: background 0.3s ease;
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(111, 109, 109, 0.2);
+  border-radius: 20px;
 }
 
-/* Scrollbar Thumb on Hover */
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(45deg, #969699, #767678);
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(122, 118, 118, 0.3);
 }
-
 /* Scrollbar Buttons (Optional, can remove if not needed) */
 ::-webkit-scrollbar-button {
   display: none;
