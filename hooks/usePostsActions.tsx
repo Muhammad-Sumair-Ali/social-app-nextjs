@@ -6,6 +6,8 @@ import axios from "axios";
 import {  useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
+
+// posts , like comment, share, save, follow, unfollow, delete post
 export const usePostsActions = ({ post }: PostCardProps) => {
   const { user } = useAuth();
   const [liked, setLiked] = useState(
@@ -162,6 +164,9 @@ export const usePostsActions = ({ post }: PostCardProps) => {
   };
 };
 
+
+
+// fetch posts data hooks
 export const useFetchPosts = () => {
   const [posts, setPosts] = useState<PostCardData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -170,6 +175,7 @@ export const useFetchPosts = () => {
 
 
   const handleFetchPosts = async () => {
+    setLoading(true);
     try {
       const response = await axios.get("/api/posts");
       const newPosts = response.data.posts;

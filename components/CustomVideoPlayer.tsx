@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import './CustomVideoPlayer.css';
 
 interface CustomVideoPlayerProps {
@@ -14,7 +14,14 @@ interface CustomVideoPlayerProps {
   onLoadedMetadata?: (event: React.SyntheticEvent<HTMLVideoElement>) => void;
 }
 
-const CustomVideoPlayer: React.FC<CustomVideoPlayerProps> = ({
+// Define the ref type
+export interface VideoPlayerRef {
+  play: () => Promise<void> | void;
+  pause: () => void;
+  currentTime: number;
+}
+
+const CustomVideoPlayer = forwardRef<VideoPlayerRef, CustomVideoPlayerProps>(({
   src,
   poster,
   width = '100%',
@@ -23,13 +30,38 @@ const CustomVideoPlayer: React.FC<CustomVideoPlayerProps> = ({
   autoPlay = true,
   loop = true,
   muted = false,
-}) => {
+}, ref) => {
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [isMuted, setIsMuted] = useState(muted);
   const [showPlayAnimation, setShowPlayAnimation] = useState(false);
   const [showPauseAnimation, setShowPauseAnimation] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Expose the video methods via ref
+  useImperativeHandle(ref, () => ({
+    play: () => {
+      if (videoRef.current) {
+        const playPromise = videoRef.current.play();
+        setIsPlaying(true);
+        return playPromise;
+      }
+    },
+    pause: () => {
+      if (videoRef.current) {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      }
+    },
+    get currentTime() {
+      return videoRef.current?.currentTime || 0;
+    },
+    set currentTime(value: number) {
+      if (videoRef.current) {
+        videoRef.current.currentTime = value;
+      }
+    }
+  }));
 
   // Handle play/pause toggle
   const togglePlayPause = () => {
@@ -96,7 +128,7 @@ const CustomVideoPlayer: React.FC<CustomVideoPlayerProps> = ({
   }, [autoPlay, muted]);
 
   return (
-    <div className={`custom-video-container bg-gradient-to-br from-zinc-400 via-gray-200 to-zinc-400  shadow-lg ${className}`} style={{ width, height }}>
+    <div className={`custom-video-container bg-gradient-to-br from-zinc-400 via-gray-200 to-zinc-400 shadow-lg ${className}`} style={{ width, height }}>
       <video
         ref={videoRef}
         className="custom-video rounded-none"
@@ -158,6 +190,8 @@ const CustomVideoPlayer: React.FC<CustomVideoPlayerProps> = ({
       </div>
     </div>
   );
-};
+});
+
+CustomVideoPlayer.displayName = 'CustomVideoPlayer';
 
 export default CustomVideoPlayer;

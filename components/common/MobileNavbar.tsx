@@ -60,7 +60,7 @@ export function MobileNav({ items = defaultItems, className }: MobileNavProps) {
 
   return (
     <div className={cn("fixed bottom-0 left-0 z-50 w-full border-t bg-background md:hidden", className)}>
-      <div className="mx-auto flex h-16 max-w-md items-center justify-around px-6">
+      <div className="mx-auto flex h-16 max-w-md items-center justify-between px-6">
         {items.map((item) => {
           const isActive = pathname === item.href
           const Icon = item.icon

@@ -5,15 +5,11 @@ import { useFetchPosts } from "@/hooks/usePostsActions";
 import SuggestUsersMobile from "../common/SuggestUserMobile";
 
 const ListingPostsCards: React.FC = () => {
-  const { posts, loading, error, handleFetchPosts } = useFetchPosts();
+  const { posts, loading, handleFetchPosts } = useFetchPosts();
 
   useEffect(() => {
     handleFetchPosts();
   }, []);
-
-  if (error) {
-    console.error("Error fetching posts:", error);
-  }
 
   return (
     <div className="space-y-12 ring-amber-400 m-auto -mt-4 mb-10">

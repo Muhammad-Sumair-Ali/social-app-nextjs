@@ -16,6 +16,68 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/app/context/useAuth";
 import toast from "react-hot-toast";
+import { IUser } from "@/lib/types";
+
+const UserProfileDropdown = ({
+  user,
+  signupHandler,
+}: {
+  user: IUser;
+  signupHandler: () => void;
+}) => {
+  return (
+    <>
+      {user?._id ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <Avatar className="h-9 w-9 lg:w-11 shadow lg:h-11 border border-gray-200 dark:border-gray-700">
+                <AvatarImage src={user.image || ""} alt={user.fullName} />
+                <AvatarFallback fallbackKey={user.email}>
+                  {user.email?.charAt(0).toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>
+              <div className="flex flex-col">
+                <span className="font-medium">{user.fullName || "User"}</span>
+                <span className="text-xs text-muted-foreground">
+                  {user.email}
+                </span>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link
+                href="/profile"
+                className="cursor-pointer flex items-center gap-2"
+              >
+                <User className="w-4 h-4" />
+                Profile
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={signupHandler}
+              className="text-destructive focus:text-destructive cursor-pointer flex items-center gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <Link href="/login">
+          <Button size="sm" className="rounded-full">
+            Login
+          </Button>
+        </Link>
+      )}
+    </>
+  );
+};
 
 export default function Header() {
   const { user } = useAuth();
@@ -69,55 +131,9 @@ export default function Header() {
               </Button>
             </Link>
 
-            {user?._id ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <Avatar className="h-9 w-9 lg:w-11 shadow lg:h-11 border border-gray-200 dark:border-gray-700">
-                      <AvatarImage src={user.image || ""} alt={user.fullName} />
-                      <AvatarFallback fallbackKey={user.email}>
-                        {user.email?.charAt(0).toUpperCase() || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>
-                    <div className="flex flex-col">
-                      <span className="font-medium">
-                        {user.fullName || "User"}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {user.email}
-                      </span>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/profile"
-                      className="cursor-pointer flex items-center gap-2"
-                    >
-                      <User className="w-4 h-4" />
-                      Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={handleSignOut}
-                    className="text-destructive focus:text-destructive cursor-pointer flex items-center gap-2"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link href="/login">
-                <Button size="sm" className="rounded-full">
-                  Login
-                </Button>
-              </Link>
+            {/* User Menu */}
+            {user && (
+              <UserProfileDropdown user={user} signupHandler={handleSignOut} />
             )}
           </div>
 
@@ -142,22 +158,16 @@ export default function Header() {
                 <Menu className="w-5 h-5" />
               )}
             </Button>
+            {user && (
+              <UserProfileDropdown user={user} signupHandler={handleSignOut} />
+            )}
           </div>
-          <Avatar className="h-10 w-10">
-            <AvatarImage
-              src={user?.image || ""}
-              alt={user?.fullName || "User"}
-            />
-            <AvatarFallback className="bg-gradient-to-br from-pink-500 to-rose-500 text-white">
-              {user?.email?.charAt(0).toUpperCase() || "U"}
-            </AvatarFallback>
-          </Avatar>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-background border-t">
+        <div className="md:hidden absolute right-2 w-72 bg-background border-t">
           <div className="container mx-auto px-4 py-4 flex flex-col gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -168,7 +178,7 @@ export default function Header() {
               />
             </div>
 
-            {user?._id ? (
+            {/* {user?._id ? (
               <>
                 <div className="flex items-center gap-3 p-2">
                   <div className="flex flex-col">
@@ -211,7 +221,7 @@ export default function Header() {
               >
                 <Button className="w-full rounded-full">Login</Button>
               </Link>
-            )}
+            )} */}
           </div>
         </div>
       )}

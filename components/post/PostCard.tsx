@@ -312,7 +312,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             className="group border relative flex items-center gap-2 px-4 py-2 rounded-xl text-gray-600 hover:text-blue-500 transition-all duration-300"
           >
             <MessageCircle className="w-7 h-7 transition-all duration-300 group-hover:scale-110" />
-            <span className="text-lg font-semibold">{comments.length}</span>
+            <span className="text-lg font-semibold">{comments?.length}</span>
           </Button>
         </div>
 
@@ -346,8 +346,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           <Separator className="w-full opacity-50" />
           <div className="w-full px-4 py-3 bg-gray-50 dark:bg-zinc-800/50">
             <div className="max-h-60 overflow-y-auto space-y-3 pr-1">
-              {comments.length > 0 ? (
-                comments.map((comment, index) => (
+              {comments?.length > 0 ? (
+                comments?.map((comment, index) => (
                   <div key={index} className="flex gap-2 ">
                     <Avatar className="h-11 w-11 border border-white shadow dark:border-zinc-800">
                       <AvatarImage

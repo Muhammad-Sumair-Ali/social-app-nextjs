@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { useAuth } from "@/app/context/useAuth";
 import { getFirstNameFromEmail } from "@/lib/helpers";
 import Link from "next/link";
@@ -12,17 +12,18 @@ import { Card } from "@/components/ui/card";
 import { Send, RefreshCw, ArrowLeft, Paperclip } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMessages } from "@/hooks/useMessages";
-import { useReceiver } from "@/hooks/useReceiver";
 import { useMessageUI } from "@/hooks/useMessageUI";
 import ChatLayout from "@/app/layout/ChatLayout";
+import { useUsersActions } from "@/hooks/useUsersAction";
+import { IUser } from "@/lib/types";
 
 export default function UserMessagesChat() {
   const { user: currentUser } = useAuth();
   const [text, setText] = useState("");
   const { id: receiverId } = useParams<{ id: string }>();
-  
+  const [receiverUser, setReceiverUser] = useState<IUser>();
   // Custom hooks
-  const { receiverUser } = useReceiver(receiverId);
+  const { fetchUserById } = useUsersActions();
   const { messages, loading, sending, fetchMessages, sendMessage, setupPolling } = useMessages(currentUser, receiverId);
   const { messagesEndRef, inputRef, formatMessageTime, isCurrentUser, groupedMessages, focusInput } = useMessageUI(messages, currentUser?._id);
 
@@ -38,6 +39,17 @@ export default function UserMessagesChat() {
     setText("");
     focusInput();
   };
+
+    useEffect(() => {
+      if (!receiverId) return;
+      fetchUserById(receiverId)
+        .then((userData) => {
+          setReceiverUser(userData);
+        })
+        .catch((error) => {
+          console.error("Failed to fetch receiver User :", error);
+        });
+    }, [receiverId]);
 
   return (
     <ChatLayout>

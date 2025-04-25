@@ -2,7 +2,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/useAuth";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PencilLine, Settings, Share2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfilePostCard } from "@/components/post/ProfilePostsCard";
@@ -20,7 +19,7 @@ export default function Profile() {
       fetchUserPosts(user);
     }
   }, [user?._id]);
-  
+
   if (!user) {
     return <LoginFirst />;
   }
@@ -34,7 +33,7 @@ export default function Profile() {
       <div className="bg-white shadow-sm rounded-t-2xl">
         <div className="max-w-4xl mx-auto px-4 py-6 ">
           {/* Profile Header */}
-          <div className="flex flex-col md:flex-row pl-5 rounded-xl items-center md:items-start gap-6">
+          <div className="flex flex-col  md:flex-row pl-5 rounded-xl overflow-hidden items-center md:items-start gap-6">
             {/* Avatar */}
             <div className="w-24 h-24 md:w-28 md:h-28 rounded-full  bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold shadow-md">
               <Avatar className="h-24 w-24 md:w-28 md:h-28 rounded-full shadow   border-white dark:border-zinc-800 ">
@@ -79,8 +78,6 @@ export default function Profile() {
 
               {/* Bio */}
               <p className="text-sm mb-4">{"Professional Developer 👨‍💻"}</p>
-
-            
             </div>
 
             {/* Action Buttons */}
@@ -104,64 +101,27 @@ export default function Profile() {
       </div>
 
       {/* Content Tabs */}
-      <Tabs defaultValue="posts" className="w-full">
-        <div className="border-b bg-white px-3 pb-2 rounded-b-2xl">
-          <TabsList className="max-w-4xl mx-auto h-12 bg-transparent">
-            <TabsTrigger
-              value="posts"
-              className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-black data-[state=active]:rounded-none data-[state=active]:shadow-none"
-            >
-              Posts
-            </TabsTrigger>
-            <TabsTrigger
-              value="liked"
-              className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-black data-[state=active]:rounded-none data-[state=active]:shadow-none"
-            >
-              Liked
-            </TabsTrigger>
-            <TabsTrigger
-              value="saved"
-              className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-black data-[state=active]:rounded-none data-[state=active]:shadow-none"
-            >
-              Saved
-            </TabsTrigger>
-          </TabsList>
-        </div>
-
-        <TabsContent value="posts" className="max-w-4xl mx-auto px-4 mt-6">
-          {userPosts.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
-              {userPosts.map((post, index) => (
-                <ProfilePostCard key={index} post={post} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-              <p className="text-gray-600 mb-4">
-                You haven&#39;t created any posts yet.
-              </p>
-              <button
-                onClick={() => router.push("/create")}
-                className="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 font-medium"
-              >
-                Create Your First Post
-              </button>
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="liked" className="max-w-4xl mx-auto px-4 mt-6">
-          <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-            <p className="text-gray-600">No liked posts yet</p>
+      <div className="py-4">
+        {userPosts.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+            {userPosts.map((post, index) => (
+              <ProfilePostCard key={index} post={post} />
+            ))}
           </div>
-        </TabsContent>
-
-        <TabsContent value="saved" className="max-w-4xl mx-auto px-4 mt-6">
+        ) : (
           <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-            <p className="text-gray-600">No saved posts yet</p>
+            <p className="text-gray-600 mb-4">
+              You haven&#39;t created any posts yet.
+            </p>
+            <button
+              onClick={() => router.push("/create")}
+              className="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 font-medium"
+            >
+              Create Your First Post
+            </button>
           </div>
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
     </div>
   );
 }
