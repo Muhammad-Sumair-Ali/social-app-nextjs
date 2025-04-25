@@ -106,7 +106,7 @@ export default function Header() {
             <div className="bg-gradient-to-r from-zinc-800 to-gray-500 p-1.5 rounded-md text-white">
               <Home className="w-5 h-5" />
             </div>
-            <span className="hidden sm:inline">ReelsPro Pakistani</span>
+            <span className="hidden sm:inline">ReelsPro PK</span>
           </Link>
 
           {/* Desktop Navigation */}

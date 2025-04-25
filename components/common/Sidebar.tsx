@@ -111,7 +111,7 @@ export default function Sidebar() {
           </div>
 
           <div className="px-4 py-4 text-xs text-muted-foreground">
-            <p className="mb-4">© 2024 TikClone</p>
+            <p className="mb-4">© 2025 ReelsPro PK</p>
             <div className="flex flex-wrap gap-x-2 gap-y-1">
               <Link href="#" className="hover:underline">
                 About
