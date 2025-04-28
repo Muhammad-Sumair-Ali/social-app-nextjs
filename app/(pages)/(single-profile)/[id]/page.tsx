@@ -1,5 +1,5 @@
 "use client";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfilePostCard } from "@/components/post/ProfilePostsCard";
 import {
@@ -13,7 +13,7 @@ export default function Profile() {
   const { id } = useParams();
   const { useUser } = useUsersActions();
   const { data: user } = useUser(id?.toString());
-  const router = useRouter();
+
 
   const { userPosts, isLoading } = useUserPosts(user);
 
