@@ -92,14 +92,8 @@ export default function Profile() {
         ) : (
           <div className="text-center py-12 bg-white rounded-lg shadow-sm">
             <p className="text-gray-600 mb-4">
-              You haven&#39;t created any posts yet.
+              user haven&#39;t created any posts yet.
             </p>
-            <button
-              onClick={() => router.push("/create")}
-              className="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 font-medium"
-            >
-              Create Your First Post
-            </button>
           </div>
         )}
       </div>
